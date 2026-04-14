@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Afya Care</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00ffff">
+
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+
+<style>
+body {
+  touch-action: pan-y;
+}
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  background: black;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow: hidden;
+}
+
+/* VIDEO */
+#brandVideo {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* CLOCK */
+#clockBox {
+  position: fixed;
+  top: 20px;
+  left: 10px;
+  font-size: 20px;
+  background: rgba(0,0,0,0.6);
+  padding: 10px 18px;
+  border-radius: 10px;
+  z-index: 10;
+}
+
+/* ADS */
+#adImage {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 50%;
+  height: 100%;
+  background: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  transition: right 0.6s ease;
+}
+
+#adImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* LESSON FADE */
+.lessonFade {
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+}
+
+/* SMART TOGGLE (HIDDEN INITIALLY) */
+#smartToggle {
+  position:fixed;
+  bottom:80px;
+  left:20px;
+  border-radius:40px;
+  background:linear-gradient(145deg,#00ffff,#008f8f);
+  border:none;
+  color:black;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 16px;
+  z-index:30;
+  opacity:0;
+  transform:translateY(100px);
+  transition:0.4s;
+}
+
+/* ICON */
+.dekaIcon {
+  width:45px;
+  height:45px;
+  border-radius:50%;
+  background:black;
+  color:#00ffff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Russo One';
+  font-size:20px;
+}
+
+/* LABEL */
+#smartLabel {
+  opacity:0;
+  transform:translateX(-10px);
+  transition:0.4s;
+  white-space:nowrap;
+}
+
+#smartToggle.active #smartLabel {
+  opacity:1;
+  transform:translateX(0);
+}
+
+/* PANEL */
+#smartPanel {
+  position:fixed;
+  bottom:150px;
+  left:20px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  opacity:0;
+  pointer-events:none;
+  transition:0.3s;
+  z-index:30;
+}
+#smartPanel.show {
+  opacity:1;
+  pointer-events:auto;
+}
+
+.smart-item {
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#00ffff;
+  color:black;
+}
+
+/* SCROLL BANNER */
+#scrollBanner {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: black;
+  z-index: 10;
+  padding: 8px 0;
+}
+
+#scrollText {
+  white-space: nowrap;
+  animation: scroll 30s linear infinite;
+  font-size: 40px;
+}
+
+.dekaStyle {
+  font-family: 'Russo One', sans-serif;
+  color: #00ffff;
+  font-size: 38px;
+}
+
+@keyframes scroll {
+  from { transform: translateX(100%); }
+  to { transform: translateX(-100%); }
+}
+
+/* LESSON LABEL */
+#lessonLabel {
+  position: fixed;
+  top: 70px;
+  left: 20px;
+  background: rgba(0,0,0,0.6);
+  padding: 10px 16px;
+  border-radius: 14px;
+  font-size: 18px;
+  color:  #00ffff;
+  z-index: 5;
+}
+
+/* CONTROLS */
+#controls {
+  position: fixed;
+  bottom: 140px;
+  left: 20px;
+  background: rgba(0,0,0,0.7);
+  border-radius: 20px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 50; /* 🔥 higher than smartToggle */
+}
+#controls.show {
+  opacity:1;
+  pointer-events:auto;
+}
+#controlGrid {
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:10px;
+  padding:10px;
+}
+.ctrl-btn {
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  background:#00ffff;
+  border:none;
+}
+
+/* HEALTH UI */
+#healthyContainer {
+  position: fixed;
+  inset: 0;
+  background: black;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  color: #00ffff;
+  font-family: 'Russo One';
+}
+
+#topicsPanel {
+  padding: 15px;
+  overflow: auto;
+}
+
+#topicsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#topicsList button {
+  padding: 14px;
+  background: #00ffff;
+  color: black;
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+}
+
+#lessonView {
+  display: none;
+  flex-direction: column;
+  height: 100%;
+}
+
+#healthyScrollOuter {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+#healthyScrollInner {
+  position: absolute;
+  width: 100%;
+}
+
+#healthyScrollInner img {
+  width: 90%;
+  max-width: 500px;
+  height: auto;
+  display: block;
+  margin: 15px auto;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0,255,255,0.3);
+}
+
+#healthyControls {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+}
+#healthyControls button {
+  padding: 10px;
+  background: #00ffff;
+  border: none;
+}
+
+#lessonView {
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+#healthyControls {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<button id="installBtn" style="
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  padding:10px;
+  background:#00ffff;
+  border:none;
+  border-radius:10px;
+  display:none;
+  z-index:200;
+">
+Install App
+</button>
+
+<div id="guideOverlay" style="
+  position:fixed; inset:0; background:rgba(0,0,0,0.7); color:#00ffff;
+  z-index:100; display:flex; flex-direction:column; justify-content:center; 
+  align-items:center; font-family:'Russo One'; font-size:28px; text-align:center; padding:20px;">
+  <div id="guideText">Welcome! Swipe up/down or press buttons to explore.</div>
+  <button id="nextGuide" style="
+    margin-top:30px; padding:12px 20px; border:none; border-radius:12px;
+    background:#00ffff; color:black; font-size:22px;">Next ➤</button>
+</div>
+
+<script src="bible-data.js"></script>
+
+<script src="lesson-data.js"></script>
+
+<video id="brandVideo" autoplay muted playsinline></video>
+
+<div id="clockBox"></div>
+<div id="lessonLabe">WORD OF GOD BY: ERICK H AUGUSTINO</div>
+
+<div id="adImage"><img id="adImg"></div>
+
+<div id="scrollBanner">
+  <div id="scrollText">
+    <span class="dekaStyle">WORD OF GOD</span> •  📖 “Kuna atoaye kwa ukarimu, naye huzidi kuwa tajiri; na yeye azuiaye isivyofaa hupata umaskini.” (Mithali 11:24).
+  </div>
+</div>
+
+<!-- SMART TOGGLE -->
+<button id="smartToggle">
+  <span class="dekaIcon">DK</span>
+  <div id="smartLabel">
+    <div>In God's Name</div>
+    <small>powered by deka</small>
+  </div>
+</button>
+
+<div id="smartPanel">
+  <button class="smart-item" id="openControls">🖱️ Controls</button>
+  <button class="smart-item" id="openHealth">📚 Health</button>
+</div>
+
+<div id="controls">
+  <div id="controlGrid">
+    <button class="ctrl-btn" id="prev">⏮</button>
+    <button class="ctrl-btn" id="rew">⏪</button>
+    <button class="ctrl-btn" id="playPause">⏯</button>
+    <button class="ctrl-btn" id="next">⏭</button>
+    <button class="ctrl-btn" id="ff">⏩</button>
+  </div>
+</div>
+
+<div id="updateBox" style="
+  position:fixed;
+  top:80px;
+  right:20px;
+  background:#00ffff;
+  color:black;
+  padding:15px;
+  border-radius:12px;
+  display:none;
+  z-index:200;
+  font-family:'Russo One';
+  max-width:250px;
+">
+
+  <div id="updateText"></div>
+
+  <button onclick="applyUpdate()" style="
+    margin-top:10px;
+    padding:8px;
+    border:none;
+    background:black;
+    color:#00ffff;
+    border-radius:8px;
+    width:100%;
+  ">
+    Update Now
+  </button>
+
+</div>
+
+<script>
+/* ================= FULLSCREEN KIOSK ================= */
+function goFullScreen(){
+  const el=document.documentElement;
+  if(el.requestFullscreen) el.requestFullscreen();
+  else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  else if(el.msRequestFullscreen) el.msRequestFullscreen();
+}
+document.body.addEventListener("click", goFullScreen, {once:true});
+
+const guideSteps = [
+  {text: "This is the video area. Tap to unmute and play videos."},
+  {text: "Swipe down to hide panels, swipe up to reveal the smart toggle."},
+  {text: "Press '🖱️Controls' to play/pause, rewind, or fast forward videos."},
+  {text: "Press '📚 Health' to explore health lessons."},
+  {text: "Inside a lesson, click any line or image to mark it for printing."},
+  {text: "Press the '🖨 PRINT' button to print only the marked parts."},
+  {text: "Press the '🔃 ROTATE' button to manage landscape/portrait."},
+{text: "Swipe up/down or use the top buttons to hide/show topics."},
+  {text: "That's it! Enjoy The Journey."}
+];
+
+let guideIndex = 0;
+const guideOverlay = document.getElementById("guideOverlay");
+const guideText = document.getElementById("guideText");
+const nextGuide = document.getElementById("nextGuide");
+
+nextGuide.onclick = () => {
+  guideIndex++;
+  if(guideIndex >= guideSteps.length){
+    guideOverlay.style.display = "none";
+  } else {
+    guideText.innerText = guideSteps[guideIndex].text;
+  }
+};
+
+/* ================= VIDEO ================= */
+const video = document.getElementById("brandVideo");
+document.body.addEventListener("click", () => {
+  video.muted = false; video.volume = 1; video.play().catch(()=>{});
+},{once:true});
+
+/* ================= CLOCK ================= */
+const clockBox = document.getElementById("clockBox");
+setInterval(()=>clockBox.innerText=new Date().toLocaleTimeString(),1000);
+
+/* ================= ADS ================= */
+const adImages=["https://i.imgur.com/Vq3ksCE.png","https://i.imgur.com/dFw0tik.png"];
+adImages.forEach(src=>{new Image().src=src;});
+let adIndex=0, adInterval, currentLesson=null;
+
+function resetAdImage(){ adImg.classList.remove("lessonFade"); adImg.style.opacity="1"; adImage.style.right="-100%"; if(adImages.length>0) adImg.src=adImages[0]; }
+
+function showAd(){ if(currentLesson !== null && !lessonAds[currentLesson]) return; adImg.style.opacity="1"; adImg.src=adImages[adIndex]; setTimeout(()=>adImage.style.right="0",50); setTimeout(()=>adImage.style.right="-100%",8000); adIndex=(adIndex+1)%adImages.length; }
+
+function startAds(){ clearInterval(adInterval); resetAdImage(); showAd(); adInterval=setInterval(showAd,25000); }
+function stopAds(){ clearInterval(adInterval); adImage.style.right="-100%"; }
+
+function stopLessonAds(){ if(lessonAdInterval){ clearInterval(lessonAdInterval); lessonAdInterval=null; } }
+
+function startLessonAds(lessonId){
+  stopLessonAds();
+  if(!lessonAds[lessonId]) return;
+  lessonAdIndex=0;
+  function showLessonAd(){
+    const ads=lessonAds[lessonId];
+    adImg.style.opacity="1"; adImg.src=ads[lessonAdIndex];
+    setTimeout(()=>adImage.style.right="0",50);
+    setTimeout(()=>adImage.style.right="-100%",8000);
+    lessonAdIndex=(lessonAdIndex+1)%ads.length;
+  }
+  showLessonAd();
+  lessonAdInterval=setInterval(showLessonAd,25000);
+}
+
+/* ================= VIDEO PLAYLIST ================= */
+let playlist=[].concat(...Object.values(lessons));
+let index=0;
+
+function playVideo(i){ if(i>=playlist.length) i=0; if(i<0) i=playlist.length-1; index=i; video.src=playlist[index]; video.play().catch(()=>{}); }
+playVideo(0);
+video.addEventListener("ended", () => {
+  playVideo(index + 1);
+});
+
+/* INSTALL APP */
+let deferredPrompt;
+const installBtn = document.getElementById("installBtn");
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+
+  installBtn.style.display = "block"; // show button
+});
+
+installBtn.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+
+  deferredPrompt.prompt();
+  deferredPrompt = null;
+
+  installBtn.style.display = "none";
+});
+
+/* SERVICE WORKER */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("SW ready"))
+    .catch(err => console.log("SW error", err));
+}
+
+/* SMART SYSTEM */
+const smartToggle=document.getElementById("smartToggle");
+const smartPanel=document.getElementById("smartPanel");
+
+let panelTimer=null;
+
+function showPanel(){
+  smartPanel.classList.add("show");
+  smartToggle.classList.add("active");
+  resetTimer();
+}
+
+function hidePanel(){
+  smartPanel.classList.remove("show");
+  smartToggle.classList.remove("active");
+}
+
+function resetTimer(){
+  if(panelTimer) clearTimeout(panelTimer);
+  panelTimer=setTimeout(hidePanel,4000);
+}
+
+smartToggle.onclick=()=>{
+  if(smartPanel.classList.contains("show")){
+    hidePanel();
+  } else {
+    showPanel();
+  }
+};
+
+smartPanel.addEventListener("click",resetTimer);
+
+/* ================= CONTROLS ================= */
+const openControls=document.getElementById("openControls");
+const openKeypad=document.getElementById("openKeypad");
+const openHealth=document.getElementById("openHealth");
+
+const controls=document.getElementById("controls");
+const prev=document.getElementById("prev");
+const next=document.getElementById("next");
+const rew=document.getElementById("rew");
+const ff=document.getElementById("ff");
+const playPause=document.getElementById("playPause");
+
+openControls.onclick=()=>controls.classList.toggle("show");
+prev.onclick=()=>playVideo(index-1);
+next.onclick=()=>playVideo(index+1);
+rew.onclick=()=>video.currentTime-=10;
+ff.onclick=()=>video.currentTime+=10;
+playPause.onclick=()=>video.paused?video.play():video.pause();
+
+let currentVersion = localStorage.getItem("app_version") || "1.0.0";
+
+async function checkForUpdate() {
+  try {
+    const res = await fetch("https://derrickafricatz-wq.github.io/AFYA-CARE/version.json?time=" + Date.now());
+    const data = await res.json();
+
+    if (data.version !== currentVersion) {
+      showUpdateNotification(data.message, data.force);
+
+      currentVersion = data.version;
+      localStorage.setItem("app_version", data.version);
+    }
+  } catch (err) {
+    console.log("Update check failed");
+  }
+}
+
+// check every 1 minute
+setInterval(checkForUpdate, 60000);
+
+
+function showUpdateNotification(msg, force) {
+  const box = document.getElementById("updateBox");
+  const text = document.getElementById("updateText");
+
+  text.innerText = msg;
+  box.style.display = "block";
+
+  // 🔊 BEEP SOUND ALERT
+  const beep = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
+  beep.play().catch(()=>{});
+
+  // 🔥 FORCE UPDATE (AUTO RELOAD)
+  if (force) {
+    setTimeout(() => {
+      location.reload();
+    }, 5000);
+  }
+}
+
+function applyUpdate() {
+  location.reload();
+}
+
+/* ================= HEALTHY CLASS ================= */
+
+let scrollInterval=null, scrollSpeed=1.8;
+window._inner=null, window._outer=null, window._lesson=null, window._topics=null;
+
+let topicsExpanded = true;
+
+openHealth.onclick = () => { 
+  showHealthyClass();
+  announcementBox.style.display = "none";
+};
+
+let isSpeaking = false;
+
+function speakPage(){
+
+  if(!currentBook) return;
+
+  // stop if already speaking
+  if(isSpeaking){
+    speechSynthesis.cancel();
+    isSpeaking = false;
+    return;
+  }
+
+  const page = currentBook.pages[currentPage];
+
+  if(!page || page.length === 0) return;
+
+  const text = page.join(". ");
+
+  const speech = new SpeechSynthesisUtterance(text);
+
+  speech.lang = "en-US";
+  speech.rate = 1;
+  speech.pitch = 1;
+
+  speech.onstart = () => isSpeaking = true;
+  speech.onend = () => isSpeaking = false;
+  speech.onerror = () => isSpeaking = false;
+
+  speechSynthesis.cancel(); // clear old speech first
+  speechSynthesis.speak(speech);
+}
+
+function showHealthyClass(){
+  if(document.getElementById("healthyContainer")) return;
+  const c=document.createElement("div"); c.id="healthyContainer"; document.body.appendChild(c);
+  
+  const topics=document.createElement("div"); topics.id="topicsPanel";
+  
+  const topBar = document.createElement("div");
+topBar.style.display = "flex";
+topBar.style.gap = "10px";
+
+// TOGGLE BUTTON
+const toggle = document.createElement("button");
+toggle.innerText = "☰ HIDE";
+toggle.onclick = () => toggleTopics(toggle);
+
+// EXIT BUTTON
+const exitBtn = document.createElement("button");
+exitBtn.innerText = "✖ EXIT";
+exitBtn.style.background = "red";
+exitBtn.style.color = "white";
+
+exitBtn.onclick = () => {
+
+  // 🔇 1. STOP EVERYTHING FIRST (VERY IMPORTANT)
+  speechSynthesis.cancel();
+  isSpeaking = false;
+
+  // 🧹 2. CLOSE HEALTH SCREEN
+  const container = document.getElementById("healthyContainer");
+  if (container) container.remove();
+
+  // 🎬 3. RESET VIDEO SYSTEM
+  stopLessonAds();
+  currentLesson = null;
+  playlist = [].concat(...Object.values(lessons));
+  index = 0;
+  playVideo(0);
+
+  // 📢 4. RESTART ADS
+  stopAds();
+  adIndex = 0;
+  resetAdImage();
+  setTimeout(() => startAds(), 200);
+};
+
+// ADD BOTH BUTTONS
+topBar.appendChild(toggle);
+topBar.appendChild(exitBtn);
+
+  const list=document.createElement("div"); list.id="topicsList";
+
+  Object.keys(bibleBooks).forEach((k,i)=>{
+  const b=document.createElement("button");
+  b.innerText=(i+1)+". "+bibleBooks[k].title;
+  b.onclick=()=>openBook(k);
+  list.appendChild(b);
+});
+
+  topics.appendChild(topBar);
+  topics.appendChild(list);
+  c.appendChild(topics);
+
+  const lesson=document.createElement("div"); lesson.id="lessonView";
+
+  const outer=document.createElement("div"); outer.id="healthyScrollOuter";
+  const inner=document.createElement("div"); inner.id="healthyScrollInner";
+  outer.appendChild(inner);
+
+const controls=document.createElement("div"); controls.id="healthyControls";
+
+let rotated = false;
+
+const rotateBtn = document.createElement("button");
+rotateBtn.innerText = "🔃 ROTATE";
+
+rotateBtn.onclick = () => {
+    rotated = !rotated;
+
+    if(rotated){
+        _lesson.style.position = "fixed";
+        _lesson.style.top = "50%";
+        _lesson.style.left = "50%";
+
+        _lesson.style.width = window.innerHeight + "px";
+        _lesson.style.height = window.innerWidth + "px";
+
+        _lesson.style.transform = "translate(-50%, -50%) rotate(90deg)";
+        _lesson.style.transformOrigin = "center center";
+
+    } else {
+        _lesson.style.position = "fixed";
+        _lesson.style.top = "0";
+        _lesson.style.left = "0";
+
+        _lesson.style.width = "100vw";
+        _lesson.style.height = "100vh";
+
+        _lesson.style.transform = "none";
+    }
+};
+
+controls.appendChild(rotateBtn);
+
+const prevPageBtn = document.createElement("button");
+prevPageBtn.innerText = "⬅ PREV";
+
+prevPageBtn.onclick = () => {
+  if(currentPage > 0){
+    currentPage--;
+    renderPage();
+  }
+};
+
+const nextPageBtn = document.createElement("button");
+nextPageBtn.innerText = "NEXT ➡";
+
+nextPageBtn.onclick = () => {
+  if(currentPage < currentBook.pages.length - 1){
+    currentPage++;
+    renderPage();
+  }
+};
+
+controls.appendChild(prevPageBtn);
+controls.appendChild(nextPageBtn);
+
+const backBtn=document.createElement("button"); backBtn.innerText="BACK";
+backBtn.onclick=()=>{
+  lesson.style.display="none";
+  topics.style.display="block";
+  clearInterval(scrollInterval);
+};
+
+const voiceBtn = document.createElement("button");
+voiceBtn.innerText = "🔊 VOICE";
+
+voiceBtn.onclick = speakPage;
+
+controls.appendChild(voiceBtn);
+
+const playBtn=document.createElement("button"); playBtn.innerText="⏯ PLAY/PAUSE";
+playBtn.onclick=toggleScroll;
+
+const printBtn = document.createElement("button");
+printBtn.innerText = "🖨 PRINT";
+printBtn.onclick = () => {
+    // Get all marked elements
+    const markedElements = _inner.querySelectorAll(".marked");
+    if(markedElements.length === 0) return alert("Mark the parts you want to print first!");
+
+    // Create a temporary print container
+    const printWindow = window.open("", "", "width=800,height=600");
+    let html = "<html><head><title>Print Lesson</title>";
+    html += "<style>body{font-family: Arial, Helvetica, sans-serif; color:black;} img{max-width:100%; display:block; margin:10px 0;}</style>";
+    html += "</head><body>";
+
+    markedElements.forEach(el=>{
+        html += el.outerHTML;
+    });
+
+    // Footer
+    html += "<hr><p>Explore • Treat • Learn</p>";
+    html +=           "<p>powered by deka</p>";
+
+    html += "</body></html>";
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+};
+
+controls.appendChild(backBtn);
+controls.appendChild(playBtn);
+controls.appendChild(printBtn);
+
+lesson.appendChild(outer);
+lesson.appendChild(controls);
+c.appendChild(lesson);
+
+  window._inner=inner;
+  window._outer=outer;
+  window._lesson=lesson;
+  window._topics=topics;
+}
+
+function toggleTopics(toggleBtn){
+  const buttons = _topics.querySelectorAll("#topicsList button");
+
+  if(topicsExpanded){
+    buttons.forEach((btn, i)=>{
+      btn.style.display = i < 3 ? "block" : "none";
+    });
+    toggleBtn.innerText = "☰ SHOW";
+    topicsExpanded = false;
+  } else {
+    buttons.forEach(btn=>{
+      btn.style.display = "block";
+    });
+    toggleBtn.innerText = "☰ HIDE";
+    topicsExpanded = true;
+  }
+}
+
+let currentBook = null;
+let currentPage = 0;
+
+function openBook(key){
+  currentBook = bibleBooks[key];
+  currentPage = 0;
+
+  _lesson.style.display="flex";
+  _topics.style.display="none";
+
+  renderPage(); // we will create this next
+}
+
+function renderPage(){
+  _inner.innerHTML = "";
+
+  // PAGE INDICATOR
+  const pageInfo = document.createElement("div");
+  pageInfo.style.padding = "10px";
+  pageInfo.style.fontSize = "18px";
+  pageInfo.style.textAlign = "center";
+  pageInfo.style.color = "#00ffff";
+  pageInfo.innerText =
+    "Page " + (currentPage + 1) + " of " + currentBook.pages.length;
+
+  _inner.appendChild(pageInfo);
+
+  // CONTENT
+  const page = currentBook.pages[currentPage];
+
+  page.forEach(line => {
+    const div = document.createElement("div");
+
+    div.style.padding = "15px 0";
+    div.style.fontSize = "24px";
+    div.style.lineHeight = "2";
+    div.style.cursor = "pointer";
+
+    div.innerText = line;
+
+    div.onclick = () => {
+      div.classList.toggle("marked");
+      div.style.background = div.classList.contains("marked")
+        ? "#00ffff33"
+        : "transparent";
+    };
+
+    _inner.appendChild(div);
+  });
+
+  _inner.style.top = _outer.clientHeight + "px";
+  startScrolling();
+}
+
+function openTopic(key){
+  const topic=healthyTopics[key];
+
+  _lesson.style.display="flex";
+  _topics.style.display="none";
+  _inner.innerHTML="";
+
+  topic.lines.forEach(line=>{
+    const div=document.createElement("div");
+    div.style.padding="15px 0";
+    div.style.fontSize="24px";
+    div.style.lineHeight="2";
+    div.style.cursor = "pointer";  // indicate it can be selected
+
+    if(typeof line==="string") div.innerText=line;
+
+    if(typeof line==="object" && line.type==="image"){
+      const img=document.createElement("img");
+      img.src=line.src;
+      div.appendChild(img);
+    }
+
+    // MARKING ON CLICK
+    div.onclick = () => {
+        div.classList.toggle("marked");  // toggle selection
+        div.style.background = div.classList.contains("marked") ? "#00ffff33" : "transparent";
+    };
+
+    _inner.appendChild(div);
+});
+
+  _inner.style.top=_outer.clientHeight+"px";
+  startScrolling();
+}
+
+function startScrolling(){
+  if(scrollInterval) clearInterval(scrollInterval);
+
+  let top = _outer.clientHeight;
+
+  _inner.style.top = top + "px";
+
+  scrollInterval = setInterval(() => {
+    top -= scrollSpeed;
+
+    if(top + _inner.offsetHeight < 0){
+      top = _outer.clientHeight;
+    }
+
+    _inner.style.top = top + "px";
+  }, 40);
+}
+
+function toggleScroll(){
+  if(scrollInterval){
+    clearInterval(scrollInterval);
+    scrollInterval=null;
+  } else startScrolling();
+}
+
+/* GESTURES */
+let startY=0,endY=0;
+
+document.addEventListener("touchstart",(e)=>{
+  startY=e.changedTouches[0].screenY;
+});
+
+document.addEventListener("touchend",(e)=>{
+  endY=e.changedTouches[0].screenY;
+  let dy=endY-startY;
+
+  if(dy<-60){
+    smartToggle.style.opacity="1";
+    smartToggle.style.transform="translateY(0)";
+  }
+
+  if(dy>60){
+    smartPanel.classList.remove("show");
+    smartToggle.classList.remove("active");
+    smartToggle.style.opacity="0";
+    smartToggle.style.transform="translateY(100px)";
+    controls.classList.remove("show");
+    keypad.style.display="none";
+  }
+});
+
+</script>
+</body>
+</html>
