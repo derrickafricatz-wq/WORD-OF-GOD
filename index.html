@@ -214,8 +214,8 @@ html, body {
   border:none;
 }
 
-/* HEALTH UI */
-#healthyContainer {
+/* BIBLE UI */
+#bibleContainer {
   position: fixed;
   inset: 0;
   background: black;
@@ -252,18 +252,20 @@ html, body {
   height: 100%;
 }
 
-#healthyScrollOuter {
+#bibleScrollOuter {
   flex: 1;
   overflow: hidden;
   position: relative;
+  background: black;
 }
 
-#healthyScrollInner {
+#bibleScrollInner {
   position: absolute;
   width: 100%;
+  color: #00ffff;
 }
 
-#healthyScrollInner img {
+#bibleScrollInner img {
   width: 90%;
   max-width: 500px;
   height: auto;
@@ -273,12 +275,12 @@ html, body {
   box-shadow: 0 0 15px rgba(0,255,255,0.3);
 }
 
-#healthyControls {
+#bibleControls {
   display: flex;
   justify-content: space-between;
   padding: 10px;
 }
-#healthyControls button {
+#bibleControls button {
   padding: 10px;
   background: #00ffff;
   border: none;
@@ -293,7 +295,7 @@ html, body {
   transition: all 0.4s ease;
 }
 
-#healthyControls {
+#bibleControls {
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -336,7 +338,7 @@ Install App
 <video id="brandVideo" autoplay muted playsinline></video>
 
 <div id="clockBox"></div>
-<div id="lessonLabe">WORD OF GOD BY: ERICK H AUGUSTINO</div>
+<div id="lessonLabel">WORD OF GOD BY: ERICK H AUGUSTINO</div>
 
 <div id="adImage"><img id="adImg"></div>
 
@@ -357,7 +359,7 @@ Install App
 
 <div id="smartPanel">
   <button class="smart-item" id="openControls">🖱️ Controls</button>
-  <button class="smart-item" id="openHealth">📚 Health</button>
+  <button class="smart-item" id="openBible">📚 Bible</button>
 </div>
 
 <div id="controls">
@@ -450,6 +452,9 @@ setInterval(()=>clockBox.innerText=new Date().toLocaleTimeString(),1000);
 const adImages=["https://i.imgur.com/Vq3ksCE.png","https://i.imgur.com/dFw0tik.png"];
 adImages.forEach(src=>{new Image().src=src;});
 let adIndex=0, adInterval, currentLesson=null;
+const lessonAds={1:["https://i.imgur.com/UPgPdWT.jpeg","https://i.imgur.com/HdKedqJ.jpeg"],
+                2:["https://i.imgur.com/lvRn9kT.jpeg","https://i.imgur.com/egaJf4s.png"]};
+let lessonAdInterval, lessonAdIndex=0;
 
 function resetAdImage(){ adImg.classList.remove("lessonFade"); adImg.style.opacity="1"; adImage.style.right="-100%"; if(adImages.length>0) adImg.src=adImages[0]; }
 
@@ -546,8 +551,7 @@ smartPanel.addEventListener("click",resetTimer);
 
 /* ================= CONTROLS ================= */
 const openControls=document.getElementById("openControls");
-const openKeypad=document.getElementById("openKeypad");
-const openHealth=document.getElementById("openHealth");
+const openHealth=document.getElementById("openBible");
 
 const controls=document.getElementById("controls");
 const prev=document.getElementById("prev");
@@ -608,16 +612,15 @@ function applyUpdate() {
   location.reload();
 }
 
-/* ================= HEALTHY CLASS ================= */
+/* ================= BIBLE ================= */
 
 let scrollInterval=null, scrollSpeed=1.8;
 window._inner=null, window._outer=null, window._lesson=null, window._topics=null;
 
 let topicsExpanded = true;
 
-openHealth.onclick = () => { 
-  showHealthyClass();
-  announcementBox.style.display = "none";
+openBible.onclick = () => { 
+  showBibleClass();
 };
 
 let isSpeaking = false;
@@ -653,9 +656,9 @@ function speakPage(){
   speechSynthesis.speak(speech);
 }
 
-function showHealthyClass(){
-  if(document.getElementById("healthyContainer")) return;
-  const c=document.createElement("div"); c.id="healthyContainer"; document.body.appendChild(c);
+function showBibleClass(){
+  if(document.getElementById("bibleContainer")) return;
+  const c=document.createElement("div"); c.id="bibleContainer"; document.body.appendChild(c);
   
   const topics=document.createElement("div"); topics.id="topicsPanel";
   
@@ -680,9 +683,9 @@ exitBtn.onclick = () => {
   speechSynthesis.cancel();
   isSpeaking = false;
 
-  // 🧹 2. CLOSE HEALTH SCREEN
-  const container = document.getElementById("healthyContainer");
-  if (container) container.remove();
+  // 🧹 2. CLOSE BIBLE SCREEN
+  const container = document.getElementById("bibleContainer");
+if (container) container.remove();
 
   // 🎬 3. RESET VIDEO SYSTEM
   stopLessonAds();
@@ -717,11 +720,11 @@ topBar.appendChild(exitBtn);
 
   const lesson=document.createElement("div"); lesson.id="lessonView";
 
-  const outer=document.createElement("div"); outer.id="healthyScrollOuter";
-  const inner=document.createElement("div"); inner.id="healthyScrollInner";
+  const outer=document.createElement("div"); outer.id="bibleScrollOuter";
+  const inner=document.createElement("div"); inner.id="bibleScrollInner";
   outer.appendChild(inner);
 
-const controls=document.createElement("div"); controls.id="healthyControls";
+const controls=document.createElement("div"); controls.id="bibleControls";
 
 let rotated = false;
 
@@ -987,13 +990,18 @@ document.addEventListener("touchend",(e)=>{
   }
 
   if(dy>60){
-    smartPanel.classList.remove("show");
-    smartToggle.classList.remove("active");
-    smartToggle.style.opacity="0";
-    smartToggle.style.transform="translateY(100px)";
-    controls.classList.remove("show");
-    keypad.style.display="none";
+  smartPanel.classList.remove("show");
+  smartToggle.classList.remove("active");
+  smartToggle.style.opacity="0";
+  smartToggle.style.transform="translateY(100px)";
+
+  controls.classList.remove("show");
+
+  // SAFE FIX
+  if (typeof keypad !== "undefined" && keypad) {
+    keypad.style.display = "none";
   }
+}
 });
 
 </script>
