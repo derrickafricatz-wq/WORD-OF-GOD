@@ -1076,35 +1076,67 @@ document
 async function unlockApp(){
 
   const key =
-  document.getElementById("licenseKey").value;
+    document.getElementById("licenseKey").value;
 
   const msg =
-  document.getElementById("licenseMsg");
+    document.getElementById("licenseMsg");
 
   msg.innerText = "Checking license...";
 
-  let { data, error } =
-  await client
+  // 1. GET LICENSE FROM SUPABASE
+  let { data, error } = await client
     .from("licenses")
     .select("*")
     .eq("key", key);
 
   if(error){
-    msg.innerText = "Server Error";
+    msg.innerText = "Server Error ❌";
     return;
   }
 
   if(!data || data.length === 0){
-    msg.innerText = "Invalid License";
+    msg.innerText = "Invalid License ❌";
     return;
   }
 
+  const license = data[0];
+
+  // 2. CHECK STATUS
+  if(license.status !== "active"){
+    msg.innerText = "License Blocked ❌";
+    return;
+  }
+
+  // 3. CREATE DEVICE ID (THIS PHONE)
+  let deviceID = localStorage.getItem("deviceID");
+
+  if(!deviceID){
+    deviceID = "DEV-" + Math.random().toString(36).substring(2);
+    localStorage.setItem("deviceID", deviceID);
+  }
+
+  // 4. FIRST TIME SAVE DEVICE TO SUPABASE
+  if(!license.device_id){
+
+    await client
+      .from("licenses")
+      .update({ device_id: deviceID })
+      .eq("id", license.id);
+
+  }
+
+  // 5. BLOCK ANOTHER DEVICE
+  if(license.device_id && license.device_id !== deviceID){
+    msg.innerText = "❌ Used on another device";
+    return;
+  }
+
+  // 6. SUCCESS — UNLOCK APP
   msg.innerText = "Access Granted ✔";
 
-  document
-    .getElementById("licenseScreen")
-    .style.display = "none";
-} 
+  document.getElementById("licenseScreen").style.display = "none";
+
+}
 
 </script>
 </body>
