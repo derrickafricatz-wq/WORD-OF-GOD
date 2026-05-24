@@ -1053,6 +1053,59 @@ document.addEventListener("touchend",(e)=>{
 }
 });
 
+ /* ================= SUPABASE ================= */
+
+const SUPABASE_URL =
+"https://xbemkmvvbkxknuduthsg.supabase.co";
+
+const SUPABASE_KEY =
+"PASTE-YOUR-ANON-KEY-HERE";
+
+const client =
+supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+/* ================= UNLOCK ================= */
+
+document
+.getElementById("unlockBtn")
+.onclick = unlockApp;
+
+async function unlockApp(){
+
+  const key =
+  document.getElementById("licenseKey").value;
+
+  const msg =
+  document.getElementById("licenseMsg");
+
+  msg.innerText = "Checking license...";
+
+  let { data, error } =
+  await client
+    .from("licenses")
+    .select("*")
+    .eq("key", key);
+
+  if(error){
+    msg.innerText = "Server Error";
+    return;
+  }
+
+  if(!data || data.length === 0){
+    msg.innerText = "Invalid License";
+    return;
+  }
+
+  msg.innerText = "Access Granted ✔";
+
+  document
+    .getElementById("licenseScreen")
+    .style.display = "none";
+} 
+
 </script>
 </body>
 </html>
