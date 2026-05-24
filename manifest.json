@@ -6,7 +6,7 @@
   "scope": "./",
 
   "display": "fullscreen",
-  "orientation": "landscape",
+  "orientation": "portrait",
 
   "background_color": "#000000",
   "theme_color": "#00ffff",
@@ -16,13 +16,12 @@
       "src": "https://derrickafricatz-wq.github.io/WORD-OF-GOD/images/sp.jpg",
       "sizes": "192x192",
       "type": "image/jpeg",
-      "purpose": "any maskable"
     },
+    
     {
       "src": "https://derrickafricatz-wq.github.io/WORD-OF-GOD/images/sp.jpg",
       "sizes": "512x512",
       "type": "image/jpeg",
-      "purpose": "any maskable"
     }
   ]
 }
