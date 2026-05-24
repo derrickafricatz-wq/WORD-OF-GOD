@@ -1,6 +1,6 @@
 {
-  "name": "Powered By Deka - Learn & Explore The Power Of God",
-  "short_name": "Word Of God",
+  "name": "In His Words. We Walk In Perfection",
+  "short_name": "Spiritual Words",
 
   "start_url": "./index.html",
   "scope": "./",
@@ -13,14 +13,16 @@
 
   "icons": [
     {
-      "src": "https://i.imgur.com/mMaDmMr.jpeg",
+      "src": "https://i.imgur.com/mwkZeR2.jpeg",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "https://i.imgur.com/mMaDmMr.jpeg",
+      "src": "https://i.imgur.com/mwkZeR2.jpeg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
