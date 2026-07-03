@@ -1,1143 +1,2230 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-<meta charset="UTF-8">
-<title>Spiritual Words</title>
+  <title>Holly Echo</title>
+  
+  <link rel="manifest" href="/Holly-Echo/manifest.json">
+  <meta name="theme-color" content="#1f2323">
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#00ffff">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-<link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    body {
+      background: black;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+      padding-top: 0;
+      margin: 0;
+    }
 
-<style>
-body {
-  touch-action: pan-y;
-}
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-  background: black;
-  color: white;
-  font-family: Arial, Helvetica, sans-serif;
-  overflow: hidden;
-}
-
-/* VIDEO */
-#brandVideo {
+    #appBg {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+
   width: 100%;
   height: 100%;
-  object-fit: cover;
+
+  background: url("bg.jpg") center/contain no-repeat;
+
+  background-color: black;
+
   z-index: 0;
-}
+  display: none;
 
-/* CLOCK */
-#clockBox {
+  opacity: 1;
+  transition: opacity 2.5s ease-in-out;
+}
+    
+    #scrollBannerWrapper {
   position: fixed;
-  top: 20px;
-  left: 10px;
-  font-size: 20px;
-  background: rgba(0,0,0,0.6);
-  padding: 10px 18px;
-  border-radius: 10px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+}
+    
+    #scrollBanner{
+  position: relative;
+  flex: 1;
+
+  background: rgba(0,0,0,0.9);
+  color: #00ffff;
+
+  padding: 20px 0;
+  font-size: 35px;
+  font-weight: bold;
+
+  overflow: hidden;
+  white-space: nowrap;
+
   z-index: 10;
 }
 
-/* ADS */
-#adImage {
+#scrollBanner span{
+  display: inline-block;
+
+  padding-left: 100%;
+
+  animation:scrollBanner 20s linear 1;
+}
+
+@keyframes scrollBanner{
+  from{
+    transform: translateX(0);
+  }
+  to{
+    transform: translateX(-100%);
+  }
+}
+
+    input {
+      padding: 12px;
+      width: 250px;
+      border: none;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    button {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 8px;
+  margin-top: 5px;
+  cursor: pointer;
+  font-size: 12px;
+    }
+
+    #licenseBox {
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid #00ffff;
+  border-radius: 12px;
+
+  padding: 20px;
+  text-align: center;
+
+  box-shadow: 0 0 20px #00ffff;
+
+  animation: pop 0.2s ease-out;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+   #book {
+  display: none;
   position: fixed;
   top: 0;
-  right: -100%;
-  width: 50%;
-  height: 100%;
-  background: black;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 6;
-  transition: right 0.6s ease;
-}
+  left: 0;
 
-#adImg {
+  width: 100vw;
+  height: 100vh;
+
+  background: black;
+
+  overflow: auto;
+
+  -webkit-overflow-scrolling: touch;
+
+  z-index: 50;
+} 
+
+    #licenseScreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+
   width: 100%;
   height: 100%;
-  object-fit: cover;
+
+  display: none;
+
+  justify-content: center;
+  align-items: center;
+
+  z-index: 9999;
+
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+
+  padding-top: 80px;
 }
 
-/* LESSON FADE */
-.lessonFade {
+    #pdf-render {
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+  display: block;
+    }
+
+    #toggleBtn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+
+  background: linear-gradient(45deg, #00ffff, #0088ff);
+
+  color: black;
+  font-weight: bold;
+
+  padding: 12px 18px;
+
+  border-radius: 50px;
+
+  cursor: pointer;
+
+  z-index: 9999;
+
+  box-shadow: 0 0 15px #00ffff;
+
+  font-size: 14px;
+
+  transition: 0.3s;
+}
+
+#toggleBtn:hover {
+  transform: scale(1.05);
+}
+
+#controls {
+  position: fixed;
+
+  bottom: 10px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  background: rgba(0,0,0,0.95);
+
+  border: 1px solid #00ffff;
+  border-radius: 10px;
+
+  padding: 6px 9px;
+
+  z-index: 9998;
+
+  box-shadow: 0 0 20px #00ffff;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  flex-wrap: nowrap;
+
+  max-width: 95vw;
+  overflow-x: auto;
+}
+
+  #voiceNotice {
+  position: fixed;
+  bottom: 15px;   /* keeps it above controls */
+  left: 15px;
+
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid #00ffff;
+  color: #00ffff;
+
+  padding: 6px 8px;
+
+  border-radius: 8px;
+
+  font-size: 11px;
+  font-family: Arial;
+
+  z-index: 99999;
+
+  box-shadow: 0 0 10px #00ffff;
+
+  max-width: 165px;
+  width: auto;
+
+  line-height: 1.2em;
+  word-wrap: break-word;
+
   opacity: 0;
-  transition: opacity 0.8s ease-in-out;
-}
+  transition: opacity 0.5s ease;
 
-/* SMART TOGGLE (HIDDEN INITIALLY) */
-#smartToggle {
+  pointer-events: none;
+  }
+
+   #storeHeader{
   position:fixed;
-  bottom:80px;
-  left:20px;
-  border-radius:40px;
-  background:linear-gradient(145deg,#00ffff,#008f8f);
-  border:none;
-  color:black;
+  top:0;
+  left:0;
+
+  width:100%;
+
+  background:#1f2323;
+
   display:flex;
   align-items:center;
-  gap:10px;
-  padding:10px 16px;
-  z-index:30;
-  opacity:0;
-  transform:translateY(100px);
-  transition:0.4s;
+  justify-content:space-between;
+
+  padding:25px;
+
+  box-sizing:border-box;
+
+  z-index:999999;
 }
 
-/* ICON */
-.dekaIcon {
-  width:45px;
-  height:45px;
-  border-radius:50%;
-  background:black;
-  color:#00ffff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-family:'Russo One';
+#promoText{
+  font-size:30px;
+  font-weight:bold;
+  color:white;
+}
+
+#openStoreBtn{
+  background:#ffffff;
+  color:black;
+  padding:16px 30px;
+  border-radius:30px;
+  font-weight:bold;
   font-size:20px;
 }
 
-/* LABEL */
-#smartLabel {
-  opacity:0;
-  transform:translateX(-10px);
-  transition:0.4s;
-  white-space:nowrap;
+#cartCount{
+  color:#ffcc00;
+  font-size:36px;
+  font-weight:bold;
 }
 
-#smartToggle.active #smartLabel {
-  opacity:1;
-  transform:translateX(0);
-}
-
-/* PANEL */
-#smartPanel {
+  #guideBtn{
   position:fixed;
-  bottom:150px;
-  left:20px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  opacity:0;
-  pointer-events:none;
-  transition:0.3s;
-  z-index:30;
-}
-#smartPanel.show {
-  opacity:1;
-  pointer-events:auto;
-}
+  top:120px;
+  right:15px;
 
-.smart-item {
-  padding:12px;
-  border:none;
-  border-radius:12px;
   background:#00ffff;
   color:black;
-}
 
-/* SCROLL BANNER */
-#scrollBanner {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background: black;
-  z-index: 10;
-  padding: 8px 0;
-}
-
-#scrollText {
-  white-space: nowrap;
-  animation: scroll 30s linear infinite;
-  font-size: 40px;
-}
-
-.dekaStyle {
-  font-family: 'Russo One', sans-serif;
-  color: #00ffff;
-  font-size: 38px;
-}
-
-@keyframes scroll {
-  from { transform: translateX(100%); }
-  to { transform: translateX(-100%); }
-}
-
-/* LESSON LABEL */
-#lessonLabel {
-  position: fixed;
-  top: 70px;
-  left: 20px;
-  background: rgba(0,0,0,0.6);
-  padding: 10px 16px;
-  border-radius: 14px;
-  font-size: 18px;
-  color:  #00ffff;
-  z-index: 5;
-}
-
-/* CONTROLS */
-#controls {
-  position: fixed;
-  bottom: 140px;
-  left: 20px;
-  background: rgba(0,0,0,0.7);
-  border-radius: 20px;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 50; /* 🔥 higher than smartToggle */
-}
-#controls.show {
-  opacity:1;
-  pointer-events:auto;
-}
-#controlGrid {
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:10px;
-  padding:10px;
-}
-.ctrl-btn {
-  width:50px;
-  height:50px;
-  border-radius:50%;
-  background:#00ffff;
   border:none;
+  border-radius:30px;
+
+  padding:12px 18px;
+
+  font-weight:bold;
+  font-size:16px;
+
+  z-index:999998;
+
+  box-shadow:0 0 15px #00ffff;
 }
 
-/* BIBLE UI */
-#bibleContainer {
-  position: fixed;
-  inset: 0;
-  background: black;
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  color: #00ffff;
-  font-family: 'Russo One';
+    #brandBox{
+  position:relative;
+      
+  width:260px;
+
+  height:auto;
+  min-height:75px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:#111;
+  border-right:2px solid #00ffff;
+
+  color:white;
+
+  font-size:24px;
+  font-weight:bold;
+
+  text-align:center;
+
+  padding:10px;
+
+  box-sizing:border-box;
+
+  overflow:hidden;
+
+  white-space:normal;
+
+  word-break: break-word;
+  overflow-wrap: break-word;
+    }
+
+#brandText{
+  display:block;
+  word-break: break-word;
+  line-height: 1.3em;
+  max-width: 100%;
 }
 
-#topicsPanel {
-  padding: 15px;
-  overflow: auto;
+#brandBall{
+  position:absolute;
+  left:-40px;
+  top:50%;
+
+  width:32px;
+  height:32px;
+
+  object-fit:contain;
+
+  transform:translateY(-50%);
+
+  z-index:4;
+
+  animation:ballKick 4s linear infinite;
 }
 
-#topicsList {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+@keyframes ballKick{
+
+  0%{
+    left:-40px;
+    transform:
+      translateY(-50%)
+      rotate(0deg);
+  }
+
+  75%{
+    left:170px;
+    transform:
+      translateY(-50%)
+      rotate(540deg);
+  }
+
+  90%{
+    left:170px;
+    transform:
+      translateY(-50%)
+      rotate(540deg);
+  }
+
+  100%{
+    left:-40px;
+    transform:
+      translateY(-50%)
+      rotate(0deg);
+  }
+
 }
 
-#topicsList button {
-  padding: 14px;
-  background: #00ffff;
-  color: black;
-  border: none;
-  border-radius: 10px;
-  font-size: 18px;
+#catchFlash{
+  position:absolute;
+  left:120px;
+  top:50%;
+
+  width:100px;          /* Increased from 45px */
+  height:100px;
+
+  object-fit:contain;
+
+  transform:translateY(-50%) scale(0.2);
+  transform-origin:center;
+
+  opacity:0;
+  z-index:6;
+  pointer-events:none;
+
+  filter:
+    drop-shadow(0 0 12px #00ffff)
+    drop-shadow(0 0 28px #00ffff)
+    drop-shadow(0 0 50px #7a00ff)
+    drop-shadow(0 0 70px #ffffff);
+
+  animation:catchFlash 4s linear infinite;
 }
 
-#lessonView {
-  display: none;
-  flex-direction: column;
-  height: 100%;
+@keyframes catchFlash{
+
+  0%{
+    opacity:0;
+    transform:translateY(-50%) scale(0.2) rotate(-15deg);
+  }
+
+  74%{
+    opacity:0;
+    transform:translateY(-50%) scale(0.2) rotate(-15deg);
+  }
+
+  80%{
+    opacity:1;
+    transform:translateY(-50%) scale(1.5) rotate(0deg);
+  }
+
+  86%{
+    opacity:1;
+    transform:translateY(-50%) scale(2.2) rotate(8deg);
+  }
+
+  90%{
+    opacity:0;
+    transform:translateY(-50%) scale(2.8) rotate(15deg);
+  }
+
+  100%{
+    opacity:0;
+    transform:translateY(-50%) scale(0.2) rotate(-15deg);
+  }
+}
+  
+
+    #openMarketBtn{
+  background:linear-gradient(45deg,#00ffff,#0088ff);
+  color:white;
+  padding:16px 28px;
+  border:none;
+  border-radius:30px;
+  font-weight:bold;
+  font-size:18px;
+  box-shadow:0 0 15px rgba(0,255,255,.6);
+  transition:.3s;
 }
 
-#bibleScrollOuter {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-  background: black;
+#openMarketBtn:hover{
+  transform:scale(1.05);
 }
 
-#bibleScrollInner {
-  position: absolute;
-  width: 100%;
-  color: #00ffff;
+    #marketTitle{
+  display:inline-block;
+
+  font-size:32px;
+  font-weight:900;
+
+  background:linear-gradient(
+    45deg,
+    #00ffff,
+    #ffffff,
+    #00aaff,
+    #00ffff
+  );
+
+  background-size:300% 300%;
+
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+
+  text-shadow:
+    0 2px 0 #0088aa,
+    0 4px 0 #007799,
+    0 6px 15px rgba(0,255,255,.7);
+
+  animation:
+    marketGlow 4s linear infinite,
+    marketFloat 3s ease-in-out infinite;
 }
 
-#bibleScrollInner img {
-  width: 90%;
-  max-width: 500px;
-  height: auto;
-  display: block;
-  margin: 15px auto;
-  border-radius: 15px;
-  box-shadow: 0 0 15px rgba(0,255,255,0.3);
+@keyframes marketGlow{
+
+  0%{
+    background-position:0% 50%;
+  }
+
+  50%{
+    background-position:100% 50%;
+  }
+
+  100%{
+    background-position:0% 50%;
+  }
+
 }
 
-#bibleControls {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-}
-#bibleControls button {
-  padding: 10px;
-  background: #00ffff;
-  border: none;
+@keyframes marketFloat{
+
+  0%{
+    transform:translateY(0px);
+  }
+
+  50%{
+    transform:translateY(-4px);
+  }
+
+  100%{
+    transform:translateY(0px);
+  }
+
 }
 
-#lessonView {
-  height: 100vh;
-  width: 100vw;
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  transition: all 0.4s ease;
-}
+    #installBtn{
 
-#bibleControls {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: 10px;
-}
+  background:linear-gradient(
+    to bottom,
+    #ffe066,
+    #ffb300
+  );
+
+  color:#111;
+
+  font-weight:bold;
+
+  border:none;
+
+  border-radius:12px;
+
+  padding:10px 16px;
+
+  cursor:pointer;
+
+  box-shadow:
+    0 6px 0 #cc8400,
+    0 10px 20px rgba(0,0,0,.35);
+
+  transition:.15s;
+    }
+
+    #installBtn:hover{
+  transform:translateY(-2px);
+    }
+
+    #installBtn:active{
+
+  transform:translateY(4px);
+
+  box-shadow:
+    0 2px 0 #cc8400,
+    0 4px 8px rgba(0,0,0,.25);
+
+    }
+
+    #campaignName{
+
+  position:absolute;
+
+  top:50%;
+
+  left:50%;
+
+  transform:translate(-50%,-50%);
+
+  padding:20px 30px;
+
+  border-radius:15px;
+
+  background:rgba(0,0,0,.75);
+
+  color:#fff;
+
+  text-align:center;
+
+  font-size:32px;
+
+  font-weight:900;
+
+  letter-spacing:2px;
+
+  opacity:0;
+
+  transition:opacity .8s;
+
+  z-index:9999;
+
+  text-shadow:
+    0 1px 0 #ccc,
+    0 2px 0 #bbb,
+    0 3px 0 #999,
+    0 4px 0 #777,
+    0 5px 10px rgba(0,0,0,.8);
+
+    }
+
 </style>
 </head>
 
 <body>
 
-  <div id="licenseScreen" style="
-position:fixed;
-inset:0;
-background:black;
-z-index:9999;
+<div id="campaignName">
+Featured Sponsor
+</div>
+
+<div id="appBg"></div>
+
+</div>
+
+<div id="scrollBannerWrapper">
+
+  <div id="brandBox">
+
+  <span id="brandText">
+    FEATURED SPONSOR
+</span>
+
+<img id="catchFlash" src="ball.png">
+
+</div>
+
+<div id="scrollBanner"></div>
+
+  </div>
+
+  <div id="storeHeader">
+
+  <div id="promoText">
+   ⚡ QUICK ACCESS
+  </div>
+
+  <div style="display:flex;gap:10px;">
+
+    <button id="installBtn">
+    Install App
+    </button>
+
+<button id="openStoreBtn">
+BOOK STORE
+</button>
+
+<button id="openMarketBtn">
+🛍️ AFRI|MARKET
+</button>
+
+
+</div>
+
+  <div id="cartCount">
+  🛒 [0]
+  </div>
+
+  </div>
+  
+  <div id="storePanel" style="
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:black;
+  display:none;
+  z-index:999999;
+  color:white;
+  text-align:center;
+  padding-top:80px;
+
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+
+  padding-bottom:150px;
+">
+
+    <div style="
+position:sticky;
+top:0;
 display:flex;
-flex-direction:column;
+justify-content:space-between;
+align-items:center;
+padding:15px 20px;
+background:#111;
+border-bottom:1px solid #00ffff;
+z-index:1000000;
+">
+
+ <div style="
+font-size:28px;
+font-weight:bold;
+color:#00ffff;
+">
+📚 Book Store
+</div>
+
+<div style="
+display:flex;
+align-items:center;
+gap:10px;
+">
+
+<button id="authorPortalBtn" style="
+padding:10px 16px;
+border:none;
+border-radius:8px;
+background:linear-gradient(90deg,#FFD700,#FF9800);
+color:#000;
+font-weight:bold;
+font-size:15px;
+cursor:pointer;
+">
+👤 Author Portal
+</button>
+
+<button onclick="closeStore()" style="
+padding:10px 18px;
+border:none;
+border-radius:8px;
+background:#ff4444;
+color:#fff;
+font-weight:bold;
+font-size:15px;
+cursor:pointer;
+">
+CLOSE
+</button>
+
+</div>     
+
+    </div>
+
+ <div id="dailyVerse" style="
+  background:#111;
+  border:1px solid #00ffff;
+  border-radius:15px;
+  padding:15px;
+  margin:15px;
+  text-align:center;
+  color:white;
+">
+</div>   
+
+    <div style="
+display:flex;
 justify-content:center;
 align-items:center;
-gap:20px;
+gap:10px;
+margin-bottom:20px;
 ">
 
-<h1 style="
-color:#00ffff;
-font-family:'Russo One';
-">
-SPIRITUAL EYES
-</h1>
-
-<input id="licenseKey"
-placeholder="Enter License Key"
+<input
+id="bookSearch"
+type="text"
+placeholder="🔍 Search books..."
+oninput="renderBooks()"
 style="
-padding:15px;
-width:280px;
+flex:1;
+max-width:500px;
+padding:12px;
 border:none;
-border-radius:12px;
-font-size:18px;
-text-align:center;
+border-radius:25px;
+font-size:16px;
 ">
 
-<button id="unlockBtn" style="
-padding:14px 20px;
-background:#00ffff;
+<button
+onclick="toggleGuide()"
+style="
+padding:12px 18px;
 border:none;
-border-radius:12px;
-font-size:18px;
+border-radius:25px;
+background:linear-gradient(135deg,#FFD700,#FF9800);
+color:#111;
+font-weight:bold;
+font-size:15px;
+cursor:pointer;
+white-space:nowrap;
+box-shadow:0 4px 12px rgba(255,193,7,.4);
+transition:.3s;
 ">
-UNLOCK
+📋 Guide
 </button>
 
-<div id="licenseMsg" style="
-color:#00ffff;
-font-size:18px;
-"></div>
+</div>
 
-  </div>
+  <div id="bookList"></div>
 
-<button id="installBtn" style="
+      <div id="guideBox" style="
   position:fixed;
-  bottom:20px;
-  right:20px;
-  padding:10px;
-  background:#00ffff;
-  border:none;
-  border-radius:10px;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+
+  width:90%;
+  max-width:650px;
+  max-height:80vh;
+
+  overflow-y:auto;
+
+  background:rgba(0,0,0,0.95);
+  border:2px solid #00ffff;
+  border-radius:15px;
+
+  padding:20px;
+
+  color:white;
+
   display:none;
-  z-index:200;
+
+  z-index:999999;
 ">
-Install App
-</button>
 
-<div id="guideOverlay" style="
-  position:fixed; inset:0; background:rgba(0,0,0,0.7); color:#00ffff;
-  z-index:100; display:flex; flex-direction:column; justify-content:center; 
-  align-items:center; font-family:'Russo One'; font-size:28px; text-align:center; padding:20px;">
-  <div id="guideText">Welcome! Swipe up/down or press buttons to explore.</div>
-  <button id="nextGuide" style="
-    margin-top:30px; padding:12px 20px; border:none; border-radius:12px;
-    background:#00ffff; color:black; font-size:22px;">Next ➤</button>
-</div>
+<h2 style="color:#00ffff;">
+📋– SPIRITUAL GUIDE
+</h2>
 
-<script src="bible-data.js"></script>
+<p>
+<b>1. Buying A Book</b><br>
+Open the Book Store and choose the book you want.
+</p>
 
-<script src="lesson-data.js"></script>
+<p>
+<b>2. M-Pesa Payment</b><br>
+Pay using the M-Pesa number displayed under the selected book package.
+</p>
 
-<video id="brandVideo" autoplay muted playsinline></video>
+<p>
+<b>3. Receiving Your License Key</b><br>
+After payment is confirmed, a license key is sent to the phone number used during payment.
+</p>
 
-<div id="clockBox"></div>
-<div id="lessonLabel">WORD OF GOD BY: ERICK H AUGUSTINO</div>
+<p>
+<b>4. Unlocking A Book</b><br>
+Press UNLOCK, enter your license key, then press Unlock Book.
+</p>
 
-<div id="adImage"><img id="adImg"></div>
+<p>
+<b>5. Reading Your Book</b><br>
+After successful verification, the book opens instantly and can be accessed from your library.
+</p>
 
-<div id="scrollBanner">
-  <div id="scrollText">
-    <span class="dekaStyle">WORD OF GOD</span> •  📖 “Kuna atoaye kwa ukarimu, naye huzidi kuwa tajiri; na yeye azuiaye isivyofaa hupata umaskini.” (Mithali 11:24).
-  </div>
-</div>
+    <p>
+<b>6. Rekindle View</b><br>
+If a page becomes blank, freezes, loads incorrectly, or the reading view is interrupted, press <b>⚡ REKINDLE VIEW</b>. The system will refresh and restore the current book page automatically without affecting your unlocked access.
+    </p>
 
-<!-- SMART TOGGLE -->
-<button id="smartToggle">
-  <span class="dekaIcon">DK</span>
-  <div id="smartLabel">
-    <div>In God's Name</div>
-    <small>powered by deka</small>
-  </div>
-</button>
+<p>
+<b>7. Upgrade When Limit Is Reached</b><br>
+If you reach the package page limit, press Upgrade Required and select the next package.
+</p>
 
-<div id="smartPanel">
-  <button class="smart-item" id="openControls">🖱️ Controls</button>
-  <button class="smart-item" id="openBible">📚 Bible</button>
-</div>
+<p>
+<b>8. Upgrade Payment</b><br>
+Pay the upgrade package through the displayed M-Pesa number and wait for your new upgrade key.
+</p>
 
-<div id="controls">
-  <div id="controlGrid">
-    <button class="ctrl-btn" id="prev">⏮</button>
-    <button class="ctrl-btn" id="rew">⏪</button>
-    <button class="ctrl-btn" id="playPause">⏯</button>
-    <button class="ctrl-btn" id="next">⏭</button>
-    <button class="ctrl-btn" id="ff">⏩</button>
-  </div>
-</div>
+<p>
+<b>9. Upgrade Activation</b><br>
+Enter the upgrade key and press Activate Upgrade to continue reading.
+</p>
 
-<div id="updateBox" style="
-  position:fixed;
-  top:80px;
-  right:20px;
+<p>
+<b>10. Premium Package</b><br>
+Premium unlocks the complete book without page restrictions.
+</p>
+
+<p>
+<b>11. Support</b><br>
+If a payment or key issue occurs, contact the administrator for assistance.
+</p>
+
+<button onclick="closeGuide()" style="
   background:#00ffff;
   color:black;
-  padding:15px;
-  border-radius:12px;
+  font-weight:bold;
+  padding:12px 25px;
+  border:none;
+  border-radius:30px;
+">
+ CLOSE GUIDE
+</button>
+
+</div>
+
+  </div>
+
+  <div id="marketPanel" style="
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:black;
   display:none;
-  z-index:200;
-  font-family:'Russo One';
-  max-width:250px;
+  z-index:999999;
+  color:white;
+  text-align:center;
+  padding-top:80px;
+
+  overflow-y:auto;
+  padding-bottom:120px;
+">
+    
+<div id="marketHeader" style="
+  position:sticky;
+  top:0;
+  background:#111;
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #00ffff;
+  z-index:999999;
 ">
 
-  <div id="updateText"></div>
+  <h2 style="margin:0;">
+  🏪 <span id="marketTitle">MARKET STORE</span>
+  </h2>
 
-  <button onclick="applyUpdate()" style="
-    margin-top:10px;
-    padding:8px;
+  <button onclick="closeMarket()" style="
+    background:#ff4444;
+    color:white;
     border:none;
-    background:black;
-    color:#00ffff;
     border-radius:8px;
-    width:100%;
+    padding:10px 15px;
+    font-weight:bold;
   ">
-    Update Now
+    CLOSE
   </button>
 
 </div>
 
-<script>
-/* ================= FULLSCREEN KIOSK ================= */
-function goFullScreen(){
-  const el=document.documentElement;
-  if(el.requestFullscreen) el.requestFullscreen();
-  else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-  else if(el.msRequestFullscreen) el.msRequestFullscreen();
-}
-document.body.addEventListener("click", goFullScreen, {once:true});
+    <input
+id="marketSearch"
+type="text"
+placeholder="Search companies..."
+oninput="renderMarket()"
+style="
+  width:90%;
+  max-width:500px;
+  padding:12px;
+  border:none;
+  border-radius:25px;
+  margin:15px auto;
+  font-size:16px;
+  display:block;
+">
 
-const guideSteps = [
-  {text: "This is the video area. Tap to unmute and play videos."},
-  {text: "Swipe down to hide panels, swipe up to reveal the smart toggle."},
-  {text: "Press '🖱️Controls' to play/pause, rewind, or fast forward videos."},
-  {text: "Press '📚 Health' to explore health lessons."},
-  {text: "Inside a lesson, click any line or image to mark it for printing."},
-  {text: "Press the '🖨 PRINT' button to print only the marked parts."},
-  {text: "Press the '🔃 ROTATE' button to manage landscape/portrait."},
-{text: "Swipe up/down or use the top buttons to hide/show topics."},
-  {text: "That's it! Enjoy The Journey."}
+    <div id="marketCategories" style="
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  padding:12px;
+  margin:10px;
+
+  background:#111;
+  border:1px solid #00ffff;
+  border-radius:15px;
+
+  box-shadow:
+    0 4px 10px rgba(0,255,255,.3),
+    inset 0 1px 0 rgba(255,255,255,.15),
+    inset 0 -2px 5px rgba(0,0,0,.6);
+
+  white-space:nowrap;
+">
+    </div>
+
+<div id="marketAds" style="
+  width:90%;
+  max-width:900px;
+  margin:auto;
+  padding-top:15px;
+"></div>
+
+
+</div>
+
+<div id="marketAds" style="
+  width:90%;
+  max-width:900px;
+  margin:auto;
+  padding-top:15px;
+"></div>
+
+</div>
+
+  <div id="licenseScreen">
+
+  <div id="licenseBox">
+ 
+  <h1 id="licenseTitle"> 🔐Book Unlock</h1>
+
+  <input id="key" placeholder="License Key">
+
+  <br>
+
+  <button id="unlockBtn" onclick="unlockBook()">
+  Unlock Book
+  </button> 
+
+  <p id="msg"></p>
+
+</div>
+
+</div> <!-- CLOSE licenseScreen HERE -->
+
+<div id="book">
+
+  <div id="upgradeBox" style="
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.92);
+  display: none;
+  z-index: 999999;
+  color: white;
+  text-align: center;
+  padding-top: 120px;
+">
+
+  <h1 style="color:#00ffff;">🔒 Upgrade Required</h1>
+
+  <p id="limitMessage" style="font-size:18px;">
+  You've reached your reading limit for this package.
+  </p>
+
+  <div id="upgradePlans"></div>
+
+  <button onclick="retryUnlock()" style="
+  padding:20px 45px;
+  font-size:24px;
+  border:none;
+  border-radius:50px;
+  background:#00ffff;
+  color:black;
+  font-weight:900;
+  min-width:340px;
+  margin-top:20px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.3);
+  cursor:pointer;
+">
+   💳 Activate Your Upgrade
+  </button>
+
+</div>
+
+  <!-- TOGGLE BUTTON -->
+
+<div id="toggleBtn" onclick="toggleControls()">
+   powered by deka
+</div>
+
+<!-- CONTROLS PANEL -->
+
+<div id="controls">
+
+  <div style="margin-bottom:10px;">
+    <label>Speed: </label>
+
+    <input type="range"
+      id="speed"
+      min="0.5"
+      max="2"
+      step="0.1"
+      value="1">
+
+    <span id="speedValue">1</span>
+  </div>
+
+  <button onclick="rekindleView()">⚡ REKINDLE VIEW</button>
+  
+  <button onclick="prevPage()">⬅ Prev</button>
+
+  <button onclick="nextPage()">Next ➡</button>
+
+  <span id="pageNum">Page: 1</span>
+
+</div>
+
+  <canvas id="pdf-render"></canvas>
+  
+  <div id="voiceNotice">
+   🔊Voice reader is being improved for smoother experience.
+    </div>
+
+  </div>
+
+   <script src="bg.js"></script>
+   <script src="library.js"></script>
+   <script src="market.js"></script>
+   <script src="ui.js"></script>
+   <script src="books.js"></script>
+   <script src="verse.js"></script>
+  
+
+  <script>
+    const SUPABASE_URL = "https://xbemkmvvbkxknuduthsg.supabase.co";
+
+    const SUPABASE_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhiZW1rbXZ2Ymt4a251ZHV0aHNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTUyOTgsImV4cCI6MjA5NTA3MTI5OH0.tKtlJ89jdPyeFSAaQs02Vet3SOl2LVatl4psSG9RxPI";
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let pdfDoc = null;
+    let pageNum = 1;
+    let canvas = null;
+    let ctx = null;
+    let maxPages = 0;
+    let userPackage = "starter";
+    let activeLicense = null;
+    let currentSpeech = null;
+    let speechSpeed = 1;
+    let selectedPDF = null;
+    let appStarted = false;
+    let selectedBookToUnlock = null;
+    let pendingUnlockBook = null;
+    let unlockedBooksSet = new Set(
+    JSON.parse(localStorage.getItem("unlockedBooks") || "[]")
+  );
+
+    let marketCompanyIndex = 0;
+    let marketImageIndex = 0;
+    let marketInterval = null;
+
+function startMarketBillboard() {
+
+  if (marketInterval) clearInterval(marketInterval);
+
+  marketInterval = setInterval(() => {
+
+    const billboards = document.querySelectorAll(".marketBillboard");
+
+    billboards.forEach(img => {
+
+      try {
+
+        const images = JSON.parse(
+          decodeURIComponent(img.dataset.images || "[]")
+        );
+
+        if (!images.length) return;
+
+        let index = parseInt(img.dataset.index || "0");
+
+        index = (index + 1) % images.length;
+
+        img.style.opacity = "0";
+
+       setTimeout(() => {
+
+       img.src = images[index];
+
+       img.style.opacity = "1";
+
+       img.dataset.index = index;
+
+    }, 800);
+
+      } catch (e) {
+        console.log("Billboard error:", e);
+      }
+
+    });
+
+  }, 5000);
+}
+
+    window.addEventListener("load", () => {
+  const savedLicense = localStorage.getItem("activeLicense");
+
+  if (savedLicense) {
+    activeLicense = JSON.parse(savedLicense);
+    userPackage = activeLicense.package || "starter";
+  }
+});
+
+books.forEach(book => {
+
+  if (unlockedBooksSet.has(book.title)) {
+
+  book.locked = false;
+
+  }
+
+});
+
+updateCart();
+
+window.addEventListener("load", async () => {
+
+  const offlineFiles = [
+
+  "./holly.pdf",
+  "./learn.pdf",
+
+  "./bg.jpg"
+
 ];
 
-let guideIndex = 0;
-const guideOverlay = document.getElementById("guideOverlay");
-const guideText = document.getElementById("guideText");
-const nextGuide = document.getElementById("nextGuide");
+  for (const file of offlineFiles) {
 
-nextGuide.onclick = () => {
-  guideIndex++;
-  if(guideIndex >= guideSteps.length){
-    guideOverlay.style.display = "none";
-  } else {
-    guideText.innerText = guideSteps[guideIndex].text;
+    try {
+
+      await fetch(file, {
+        cache: "reload"
+      });
+
+      console.log("Cached:", file);
+
+    } catch (e) {
+
+      console.log("Failed:", file);
+
+    }
+
   }
-};
 
-/* ================= VIDEO ================= */
-const video = document.getElementById("brandVideo");
-document.body.addEventListener("click", () => {
-  video.muted = false; video.volume = 1; video.play().catch(()=>{});
-},{once:true});
+});
+    
+    function applyLimit() {
+  const book = books.find(b => b.pdf === selectedPDF);
 
-/* ================= CLOCK ================= */
-const clockBox = document.getElementById("clockBox");
-setInterval(()=>clockBox.innerText=new Date().toLocaleTimeString(),1000);
+  if (!book || !pdfDoc) return;
 
-/* ================= ADS ================= */
-const adImages=["https://i.imgur.com/Vq3ksCE.png","https://i.imgur.com/dFw0tik.png"];
-adImages.forEach(src=>{new Image().src=src;});
-let adIndex=0, adInterval, currentLesson=null;
-const lessonAds={1:["https://i.imgur.com/UPgPdWT.jpeg","https://i.imgur.com/HdKedqJ.jpeg"],
-                2:["https://i.imgur.com/lvRn9kT.jpeg","https://i.imgur.com/egaJf4s.png"]};
-let lessonAdInterval, lessonAdIndex=0;
+  const totalPages = pdfDoc.numPages;
 
-function resetAdImage(){ adImg.classList.remove("lessonFade"); adImg.style.opacity="1"; adImage.style.right="-100%"; if(adImages.length>0) adImg.src=adImages[0]; }
+  // DEFAULT: full book (NO fake 10 limit)
+  maxPages = totalPages;
 
-function showAd(){ if(currentLesson !== null && !lessonAds[currentLesson]) return; adImg.style.opacity="1"; adImg.src=adImages[adIndex]; setTimeout(()=>adImage.style.right="0",50); setTimeout(()=>adImage.style.right="-100%",8000); adIndex=(adIndex+1)%adImages.length; }
+  if (!activeLicense) return;
 
-function startAds(){ clearInterval(adInterval); resetAdImage(); showAd(); adInterval=setInterval(showAd,25000); }
-function stopAds(){ clearInterval(adInterval); adImage.style.right="-100%"; }
+  const pkg = activeLicense.package;
 
-function stopLessonAds(){ if(lessonAdInterval){ clearInterval(lessonAdInterval); lessonAdInterval=null; } }
-
-function startLessonAds(lessonId){
-  stopLessonAds();
-  if(!lessonAds[lessonId]) return;
-  lessonAdIndex=0;
-  function showLessonAd(){
-    const ads=lessonAds[lessonId];
-    adImg.style.opacity="1"; adImg.src=ads[lessonAdIndex];
-    setTimeout(()=>adImage.style.right="0",50);
-    setTimeout(()=>adImage.style.right="-100%",8000);
-    lessonAdIndex=(lessonAdIndex+1)%ads.length;
+  if (pkg === "starter") {
+    maxPages =
+  book.startReadingPage +
+  book.plans.starter.pages - 1;
   }
-  showLessonAd();
-  lessonAdInterval=setInterval(showLessonAd,25000);
+
+  else if (pkg === "standard") {
+    maxPages =
+  book.startReadingPage +
+  book.plans.standard.pages - 1;
+  }
+
+  else if (pkg === "premium") {
+    maxPages = totalPages;
+    document.getElementById("upgradeBox").style.display = "none";
+  }
+}
+  
+  async function renderPDF() {
+
+  try {
+
+    // RESET OLD STATE (IMPORTANT FIX)
+    pdfDoc = null;
+    pageNum = 1;
+
+    const url = selectedPDF;
+
+    pdfDoc = await pdfjsLib.getDocument(url).promise;
+
+    applyLimit();
+    
+    canvas = document.getElementById('pdf-render');
+    ctx = canvas.getContext('2d');
+
+    await renderPage(pageNum);
+
+  } catch(err) {
+
+    console.error("PDF Load Error:", err);
+
+    alert("Elite flow. Tap rekindle view.");
+
+  }
+
 }
 
-/* ================= VIDEO PLAYLIST ================= */
-let playlist=[].concat(...Object.values(lessons));
-let index=0;
+    async function renderPage(num) {
 
-function playVideo(i){ if(i>=playlist.length) i=0; if(i<0) i=playlist.length-1; index=i; video.src=playlist[index]; video.play().catch(()=>{}); }
-playVideo(0);
-video.addEventListener("ended", () => {
-  playVideo(index + 1);
+  if (num > maxPages) {
+
+    pageNum = maxPages;
+
+    document.getElementById("upgradeBox").style.display = "block";
+
+    if (currentSpeech) {
+      window.speechSynthesis.cancel();
+      currentSpeech = null;
+    }
+
+    return;
+  }
+
+  const page = await pdfDoc.getPage(num);
+
+  const canvas = document.getElementById('pdf-render');
+  const ctx = canvas.getContext('2d');
+
+  // screen size
+  const screenWidth = window.innerWidth;
+  const screenHeight = window.innerHeight;
+
+  const viewport = page.getViewport({ scale: 1 });
+
+  // FIT TO FULL SCREEN (width + height)
+  const scaleX = screenWidth / viewport.width;
+  const scaleY = screenHeight / viewport.height;
+
+  const scale = Math.min(scaleX, scaleY) * 1.2;
+
+  const scaledViewport = page.getViewport({ scale });
+
+  canvas.width = scaledViewport.width;
+  canvas.height = scaledViewport.height;
+
+  // center it properly
+  canvas.style.position = "absolute";
+  canvas.style.left = "50%";
+  canvas.style.top = "45%";
+  canvas.style.transform = "translate(-50%, -50%)";
+
+  await page.render({
+    canvasContext: ctx,
+    viewport: scaledViewport
+  }).promise;
+
+  document.getElementById("pageNum").innerText = "Page: " + num;
+    }
+
+    function nextPage() {
+
+  if (currentSpeech) {
+    window.speechSynthesis.cancel();
+    currentSpeech = null;
+  }
+
+  // safety check: make sure maxPages exists
+  if (!maxPages || maxPages <= 0) {
+    console.log("maxPages not ready yet");
+    return;
+  }
+
+  // block access AFTER limit
+  if (pageNum >= maxPages) {
+
+    pageNum = maxPages;
+
+const book = books.find(b => b.pdf === selectedPDF);
+
+const actualRead =
+pageNum - book.startReadingPage + 1;
+
+document.getElementById("limitMessage").innerText =
+"You have read " +
+actualRead +
+" pages in your package.";
+
+    showUpgradePlans();
+    document.getElementById("upgradeBox").style.display = "block";
+
+    return;
+  }
+
+  // normal PDF limit check
+  if (pageNum >= pdfDoc.numPages) return;
+
+  pageNum++;
+  renderPage(pageNum);
+}
+
+function prevPage() {
+
+  if (currentSpeech) {
+    window.speechSynthesis.cancel();
+    currentSpeech = null;
+  }
+
+  if (pageNum <= 1) return;
+  pageNum--;
+  renderPage(pageNum);
+}
+
+    function toggleGuide() {
+  const box = document.getElementById("guideBox");
+  box.style.display = (box.style.display === "block") ? "none" : "block";
+}
+
+    function openStoreFromReader() {
+  document.getElementById("upgradeBox").style.display = "none";
+  document.getElementById("storePanel").style.display = "block";
+    }
+
+    function retryUnlock() {
+
+  document.getElementById("upgradeBox").style.display = "none";
+
+  document.getElementById("licenseScreen").style.display = "block";
+
+   const currentBook = books.find(b => b.pdf === selectedPDF);
+
+if (currentBook) {
+  selectedBookToUnlock = currentBook;
+  pendingUnlockBook = currentBook;
+}   
+
+  document.getElementById("key").value = "";
+
+  document.getElementById("key").focus();
+
+  document.getElementById("msg").innerText = "";  
+
+  activeLicense = null;
+
+  document.getElementById("msg").innerText =
+    "Re-enter license key to continue upgrade";
+
+    }
+
+ function showUpgradePlans() {
+
+  const book = books.find(b => b.pdf === selectedPDF);
+
+  if (!book) return;
+
+  document.getElementById("upgradePlans").innerHTML = `
+
+    <div style="
+      margin:15px;
+      padding:15px;
+      border:1px solid #00ffff;
+      border-radius:12px;
+    ">
+      Starter<br>
+      TSH ${book.plans.starter.price.toLocaleString()}<br>
+      ${book.plans.starter.pages} Pages
+    </div>
+
+    <div style="
+      margin:15px;
+      padding:15px;
+      border:1px solid #00ffff;
+      border-radius:12px;
+    ">
+      Standard<br>
+      TSH ${book.plans.standard.price.toLocaleString()}<br>
+      ${book.plans.standard.pages} Pages
+    </div>
+
+    <div style="
+      margin:15px;
+      padding:15px;
+      border:2px solid gold;
+      border-radius:12px;
+    ">
+      Premium<br>
+      TSH ${book.plans.premium.price.toLocaleString()}<br>
+      Full Book Access
+    </div>
+
+    <button onclick="openStoreFromReader()" style="
+      padding:20px 45px;
+      font-size:24px;
+      border:none;
+      border-radius:50px;
+      background:#00ffff;
+      color:black;
+      box-shadow:0 4px 12px rgba(0,0,0,0.3);
+      cursor:pointer;
+      font-weight:900;
+      min-width:340px;
+      margin-top:20px;
+    ">
+     💳 Back To Store
+    </button>
+
+  `;
+}
+
+   function rekindleView() {
+  if (!selectedPDF) return;
+
+  console.log("Rekindling view...");
+
+  // stop any voice if running
+  if (currentSpeech) {
+    window.speechSynthesis.cancel();
+    currentSpeech = null;
+  }
+
+  // reset canvas (fix black screen)
+  const canvas = document.getElementById("pdf-render");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // force reload current PDF page system
+  pageNum = pageNum || 1;
+
+  // small visual reset
+  canvas.style.opacity = "0";
+
+  setTimeout(() => {
+    canvas.style.opacity = "1";
+    renderPDF();
+  }, 200);
+    } 
+
+    async function getPageText(pageNumber) {
+
+  const page = await pdfDoc.getPage(pageNumber);
+
+  const textContent = await page.getTextContent();
+
+  let text = "";
+
+  textContent.items.forEach(item => {
+    text += item.str + " ";
+  });
+
+  return text;
+}
+
+    function pauseVoice() {
+  window.speechSynthesis.pause();
+}
+
+document.getElementById("speed").addEventListener("input", function () {
+  speechSpeed = parseFloat(this.value);
+  document.getElementById("speedValue").innerText = speechSpeed;
 });
 
-/* INSTALL APP */
-let deferredPrompt;
+    function toggleControls() {
+
+  let controls = document.getElementById("controls");
+
+  if (controls.style.display === "block") {
+    controls.style.display = "none";
+  } else {
+    controls.style.display = "block";
+  }
+
+    }
+    
+    if ("serviceWorker" in navigator) {
+
+  window.addEventListener("load", async () => {
+
+    try {
+
+      const reg = await navigator.serviceWorker.register("./sw.js");
+
+      console.log("SW Registered");
+
+      // FORCE FIRST UPDATE CHECK
+      reg.update();
+
+      // AUTO CHECK FOR NEW VERSION
+      setInterval(() => {
+        reg.update();
+      }, 60000); // every 60 seconds
+
+    } catch(err) {
+
+      console.log("SW Failed", err);
+
+    }
+
+  });
+
+}
+
+    let deferredPrompt;
+
 const installBtn = document.getElementById("installBtn");
 
+// hide button first
+installBtn.style.display = "none";
+
+// if already installed  keep hidden
+if (window.matchMedia('(display-mode: standalone)').matches) {
+  installBtn.style.display = "none";
+}
+
+// Chrome says app can install
 window.addEventListener("beforeinstallprompt", (e) => {
+
   e.preventDefault();
+
   deferredPrompt = e;
 
-  installBtn.style.display = "block"; // show button
+  // show install button
+  installBtn.style.display = "block";
 });
 
+// user presses install
 installBtn.addEventListener("click", async () => {
+
   if (!deferredPrompt) return;
 
   deferredPrompt.prompt();
+
+  const result = await deferredPrompt.userChoice;
+
+  if (result.outcome === "accepted") {
+
+    // hide after install
+    installBtn.style.display = "none";
+
+  }
+
   deferredPrompt = null;
 
+});
+
+// app installed successfully
+window.addEventListener("appinstalled", async () => {
+
   installBtn.style.display = "none";
-});
 
-/* SERVICE WORKER */
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js")
-    .then(() => console.log("SW ready"))
-    .catch(err => console.log("SW error", err));
-}
-
-/* SMART SYSTEM */
-const smartToggle=document.getElementById("smartToggle");
-const smartPanel=document.getElementById("smartPanel");
-
-let panelTimer=null;
-
-function showPanel(){
-  smartPanel.classList.add("show");
-  smartToggle.classList.add("active");
-  resetTimer();
-}
-
-function hidePanel(){
-  smartPanel.classList.remove("show");
-  smartToggle.classList.remove("active");
-}
-
-function resetTimer(){
-  if(panelTimer) clearTimeout(panelTimer);
-  panelTimer=setTimeout(hidePanel,4000);
-}
-
-smartToggle.onclick=()=>{
-  if(smartPanel.classList.contains("show")){
-    hidePanel();
-  } else {
-    showPanel();
-  }
-};
-
-smartPanel.addEventListener("click",resetTimer);
-
-/* ================= CONTROLS ================= */
-const openControls=document.getElementById("openControls");
-const openHealth=document.getElementById("openBible");
-
-const controls=document.getElementById("controls");
-const prev=document.getElementById("prev");
-const next=document.getElementById("next");
-const rew=document.getElementById("rew");
-const ff=document.getElementById("ff");
-const playPause=document.getElementById("playPause");
-
-openControls.onclick=()=>controls.classList.toggle("show");
-prev.onclick=()=>playVideo(index-1);
-next.onclick=()=>playVideo(index+1);
-rew.onclick=()=>video.currentTime-=10;
-ff.onclick=()=>video.currentTime+=10;
-playPause.onclick=()=>video.paused?video.play():video.pause();
-
-let currentVersion = localStorage.getItem("app_version") || "1.0.0";
-
-async function checkForUpdate() {
   try {
-    const res = await fetch("https://derrickafricatz-wq.github.io/AFYA-CARE/version.json?time=" + Date.now());
-    const data = await res.json();
 
-    if (data.version !== currentVersion) {
-      showUpdateNotification(data.message, data.force);
+    let deviceId =
+      localStorage.getItem("vog_device_id");
 
-      currentVersion = data.version;
-      localStorage.setItem("app_version", data.version);
+    if (!deviceId) {
+
+      deviceId =
+        crypto.randomUUID();
+
+      localStorage.setItem(
+        "vog_device_id",
+        deviceId
+      );
+
     }
+
+    const { data } = await client
+  .from("app_installs")
+  .select("id")
+  .eq("device_id", deviceId);
+
+if (!data || data.length === 0) {
+
+ let country = "Unknown";
+
+try {
+
+  const res = await fetch(
+    "https://ipapi.co/json/"
+  );
+
+  const info = await res.json();
+
+  country = info.country_name || "Unknown";
+
+} catch (err) {
+
+  console.log("Country lookup failed");
+
+} 
+
+  await client
+  .from("app_installs")
+  .insert([
+    {
+      device_id: deviceId,
+      install_source: "Voice Of God",
+      country: country
+    }
+  ]);
+
+}
+
+    console.log(
+      "Install tracked successfully"
+    );
+
   } catch (err) {
-    console.log("Update check failed");
-  }
-}
 
-// check every 1 minute
-setInterval(checkForUpdate, 60000);
+    console.error(
+      "Install tracking failed",
+      err
+    );
 
-
-function showUpdateNotification(msg, force) {
-  const box = document.getElementById("updateBox");
-  const text = document.getElementById("updateText");
-
-  text.innerText = msg;
-  box.style.display = "block";
-
-  // 🔊 BEEP SOUND ALERT
-  const beep = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
-  beep.play().catch(()=>{});
-
-  // 🔥 FORCE UPDATE (AUTO RELOAD)
-  if (force) {
-    setTimeout(() => {
-      location.reload();
-    }, 5000);
-  }
-}
-
-function applyUpdate() {
-  location.reload();
-}
-
-/* ================= BIBLE ================= */
-
-let scrollInterval=null, scrollSpeed=1.8;
-window._inner=null, window._outer=null, window._lesson=null, window._topics=null;
-
-let topicsExpanded = true;
-
-openBible.onclick = () => { 
-  showBibleClass();
-};
-
-let isSpeaking = false;
-
-function speakPage(){
-
-  if(!currentBook) return;
-
-  // stop if already speaking
-  if(isSpeaking){
-    speechSynthesis.cancel();
-    isSpeaking = false;
-    return;
   }
 
-  const page = currentBook.pages[currentPage];
-
-  if(!page || page.length === 0) return;
-
-  const text = page.join(". ");
-
-  const speech = new SpeechSynthesisUtterance(text);
-
-  speech.lang = "en-US";
-  speech.rate = 1;
-  speech.pitch = 1;
-
-  speech.onstart = () => isSpeaking = true;
-  speech.onend = () => isSpeaking = false;
-  speech.onerror = () => isSpeaking = false;
-
-  speechSynthesis.cancel(); // clear old speech first
-  speechSynthesis.speak(speech);
-}
-
-function showBibleClass(){
-  if(document.getElementById("bibleContainer")) return;
-  const c=document.createElement("div"); c.id="bibleContainer"; document.body.appendChild(c);
-  
-  const topics=document.createElement("div"); topics.id="topicsPanel";
-  
-  const topBar = document.createElement("div");
-topBar.style.display = "flex";
-topBar.style.gap = "10px";
-
-// TOGGLE BUTTON
-const toggle = document.createElement("button");
-toggle.innerText = "☰ HIDE";
-toggle.onclick = () => toggleTopics(toggle);
-
-// EXIT BUTTON
-const exitBtn = document.createElement("button");
-exitBtn.innerText = "✖ EXIT";
-exitBtn.style.background = "red";
-exitBtn.style.color = "white";
-
-exitBtn.onclick = () => {
-
-  // 🔇 1. STOP EVERYTHING FIRST (VERY IMPORTANT)
-  speechSynthesis.cancel();
-  isSpeaking = false;
-
-  // 🧹 2. CLOSE BIBLE SCREEN
-  const container = document.getElementById("bibleContainer");
-if (container) container.remove();
-
-  // 🎬 3. RESET VIDEO SYSTEM
-  stopLessonAds();
-  currentLesson = null;
-  playlist = [].concat(...Object.values(lessons));
-  index = 0;
-  playVideo(0);
-
-  // 📢 4. RESTART ADS
-  stopAds();
-  adIndex = 0;
-  resetAdImage();
-  setTimeout(() => startAds(), 200);
-};
-
-// ADD BOTH BUTTONS
-topBar.appendChild(toggle);
-topBar.appendChild(exitBtn);
-
-  const list=document.createElement("div"); list.id="topicsList";
-
-  Object.keys(bibleBooks).forEach((k,i)=>{
-  const b=document.createElement("button");
-  b.innerText=(i+1)+". "+bibleBooks[k].title;
-  b.onclick=()=>openBook(k);
-  list.appendChild(b);
 });
 
-  topics.appendChild(topBar);
-  topics.appendChild(list);
-  c.appendChild(topics);
+const voiceMessages = [
+  "🔊 Voice reader is being improved for smoother experience. Please be patient.",
+  "⚙️ We are fixing voice issues to make reading more stable. Thank you for your patience."
+];
 
-  const lesson=document.createElement("div"); lesson.id="lessonView";
+let msgIndex = 0;
 
-  const outer=document.createElement("div"); outer.id="bibleScrollOuter";
-  const inner=document.createElement("div"); inner.id="bibleScrollInner";
-  outer.appendChild(inner);
+function showVoiceNotice() {
+  const box = document.getElementById("voiceNotice");
 
-const controls=document.createElement("div"); controls.id="bibleControls";
+  if (!box) return;
 
-let rotated = false;
+  box.innerText = voiceMessages[msgIndex];
 
-const rotateBtn = document.createElement("button");
-rotateBtn.innerText = "🔃 ROTATE";
+  // fade in
+  box.style.opacity = 1;
 
-rotateBtn.onclick = () => {
-    rotated = !rotated;
+  setTimeout(() => {
+    box.style.opacity = 0;
+  }, 4000);
 
-    if(rotated){
-        _lesson.style.position = "fixed";
-        _lesson.style.top = "50%";
-        _lesson.style.left = "50%";
-
-        _lesson.style.width = window.innerHeight + "px";
-        _lesson.style.height = window.innerWidth + "px";
-
-        _lesson.style.transform = "translate(-50%, -50%) rotate(90deg)";
-        _lesson.style.transformOrigin = "center center";
-
-    } else {
-        _lesson.style.position = "fixed";
-        _lesson.style.top = "0";
-        _lesson.style.left = "0";
-
-        _lesson.style.width = "100vw";
-        _lesson.style.height = "100vh";
-
-        _lesson.style.transform = "none";
-    }
-};
-
-controls.appendChild(rotateBtn);
-
-const prevPageBtn = document.createElement("button");
-prevPageBtn.innerText = "⬅ PREV";
-
-prevPageBtn.onclick = () => {
-  if(currentPage > 0){
-    currentPage--;
-    renderPage();
-  }
-};
-
-const nextPageBtn = document.createElement("button");
-nextPageBtn.innerText = "NEXT ➡";
-
-nextPageBtn.onclick = () => {
-  if(currentPage < currentBook.pages.length - 1){
-    currentPage++;
-    renderPage();
-  }
-};
-
-controls.appendChild(prevPageBtn);
-controls.appendChild(nextPageBtn);
-
-const backBtn=document.createElement("button"); backBtn.innerText="BACK";
-backBtn.onclick=()=>{
-  lesson.style.display="none";
-  topics.style.display="block";
-  clearInterval(scrollInterval);
-};
-
-const voiceBtn = document.createElement("button");
-voiceBtn.innerText = "🔊 VOICE";
-
-voiceBtn.onclick = speakPage;
-
-controls.appendChild(voiceBtn);
-
-const playBtn=document.createElement("button"); playBtn.innerText="⏯ PLAY/PAUSE";
-playBtn.onclick=toggleScroll;
-
-const printBtn = document.createElement("button");
-printBtn.innerText = "🖨 PRINT";
-printBtn.onclick = () => {
-    // Get all marked elements
-    const markedElements = _inner.querySelectorAll(".marked");
-    if(markedElements.length === 0) return alert("Mark the parts you want to print first!");
-
-    // Create a temporary print container
-    const printWindow = window.open("", "", "width=800,height=600");
-    let html = "<html><head><title>Print Lesson</title>";
-    html += "<style>body{font-family: Arial, Helvetica, sans-serif; color:black;} img{max-width:100%; display:block; margin:10px 0;}</style>";
-    html += "</head><body>";
-
-    markedElements.forEach(el=>{
-        html += el.outerHTML;
-    });
-
-    // Footer
-    html += "<hr><p>Explore • Treat • Learn</p>";
-    html +=           "<p>powered by deka</p>";
-
-    html += "</body></html>";
-    printWindow.document.write(html);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-};
-
-controls.appendChild(backBtn);
-controls.appendChild(playBtn);
-controls.appendChild(printBtn);
-
-lesson.appendChild(outer);
-lesson.appendChild(controls);
-c.appendChild(lesson);
-
-  window._inner=inner;
-  window._outer=outer;
-  window._lesson=lesson;
-  window._topics=topics;
+  msgIndex = (msgIndex + 1) % voiceMessages.length;
 }
 
-function toggleTopics(toggleBtn){
-  const buttons = _topics.querySelectorAll("#topicsList button");
+// start loop
+showVoiceNotice();
+setInterval(showVoiceNotice, 5000); 
 
-  if(topicsExpanded){
-    buttons.forEach((btn, i)=>{
-      btn.style.display = i < 3 ? "block" : "none";
-    });
-    toggleBtn.innerText = "☰ SHOW";
-    topicsExpanded = false;
-  } else {
-    buttons.forEach(btn=>{
-      btn.style.display = "block";
-    });
-    toggleBtn.innerText = "☰ HIDE";
-    topicsExpanded = true;
-  }
+   let headerIndex = 0;
+
+const headerTexts = [
+  "FAST",
+  "FREE",
+  "SMART",
+  "READY"
+];
+
+const uniqueWords = [
+  "GO",
+  "PLUS",
+  "PRO",
+  "MAX",
+  "ZEN"
+];
+
+function startHeaderLoop() {
+  const promo = document.getElementById("promoText");
+  const cart = document.getElementById("cartCount");
+
+  setInterval(() => {
+
+    const text = headerTexts[headerIndex % headerTexts.length];
+    const word = uniqueWords[headerIndex % uniqueWords.length];
+
+    // ONLY update text + word (NO button here)
+    promo.innerHTML = `
+       ⚡${text}
+      <span style="color:#00ffff;font-weight:bold;margin-left:6px;">
+        ${word}
+      </span>
+    `;
+
+    // keep your real OPEN button untouched (HTML one)
+
+    // bucket animation
+    cart.style.transform = "scale(1.2)";
+    setTimeout(() => {
+      cart.style.transform = "scale(1)";
+    }, 200);
+
+    headerIndex++;
+
+  }, 3000);
 }
 
-let currentBook = null;
-let currentPage = 0;
+startHeaderLoop(); 
 
-function openBook(key){
-  currentBook = bibleBooks[key];
-  currentPage = 0;
+   window.addEventListener("load", async () => {
 
-  _lesson.style.display="flex";
-  _topics.style.display="none";
+  const cacheNames = await caches.keys();
 
-  renderPage(); // we will create this next
-}
+  const cache = await caches.open(cacheNames[0]);
 
-function renderPage(){
-  _inner.innerHTML = "";
+  const keys = await cache.keys();
 
-  // PAGE INDICATOR
-  const pageInfo = document.createElement("div");
-  pageInfo.style.padding = "10px";
-  pageInfo.style.fontSize = "18px";
-  pageInfo.style.textAlign = "center";
-  pageInfo.style.color = "#00ffff";
-  pageInfo.innerText =
-    "Page " + (currentPage + 1) + " of " + currentBook.pages.length;
+  let files = "";
 
-  _inner.appendChild(pageInfo);
-
-  // CONTENT
-  const page = currentBook.pages[currentPage];
-
-  page.forEach(line => {
-    const div = document.createElement("div");
-
-    div.style.padding = "15px 0";
-    div.style.fontSize = "24px";
-    div.style.lineHeight = "2";
-    div.style.cursor = "pointer";
-
-    div.innerText = line;
-
-    div.onclick = () => {
-      div.classList.toggle("marked");
-      div.style.background = div.classList.contains("marked")
-        ? "#00ffff33"
-        : "transparent";
-    };
-
-    _inner.appendChild(div);
+  keys.forEach(req => {
+    files += req.url + "\n";
   });
 
-  _inner.style.top = _outer.clientHeight + "px";
-  startScrolling();
+  // FIX: show background on app start
+  document.getElementById("appBg").style.display = "block";
+
+  startBackgroundLoop();
+
+     try {
+
+  const res = await fetch("./banner.txt");
+
+const text = await res.text();
+
+const messages = text
+  .split("\n")
+  .filter(m => m.trim() !== "");
+
+let bannerIndex = 0;
+
+const banner =
+  document.getElementById("scrollBanner");
+
+function showBanner(){
+
+  banner.innerHTML =
+    "<span>" +
+    messages[bannerIndex] +
+    "</span>";
+
+  bannerIndex++;
+
+  if(bannerIndex >= messages.length){
+    bannerIndex = 0;
+  }
+
 }
 
-function openTopic(key){
-  const topic=healthyTopics[key];
+showBanner();
 
-  _lesson.style.display="flex";
-  _topics.style.display="none";
-  _inner.innerHTML="";
+setInterval(showBanner, 20000);
 
-  topic.lines.forEach(line=>{
-    const div=document.createElement("div");
-    div.style.padding="15px 0";
-    div.style.fontSize="24px";
-    div.style.lineHeight="2";
-    div.style.cursor = "pointer";  // indicate it can be selected
+} catch (err) {
 
-    if(typeof line==="string") div.innerText=line;
+  console.log("Banner load failed", err);
 
-    if(typeof line==="object" && line.type==="image"){
-      const img=document.createElement("img");
-      img.src=line.src;
-      div.appendChild(img);
-    }
-
-    // MARKING ON CLICK
-    div.onclick = () => {
-        div.classList.toggle("marked");  // toggle selection
-        div.style.background = div.classList.contains("marked") ? "#00ffff33" : "transparent";
-    };
-
-    _inner.appendChild(div);
+     }
 });
 
-  _inner.style.top=_outer.clientHeight+"px";
-  startScrolling();
+  document.getElementById("openStoreBtn").onclick = function () {
+  document.getElementById("storePanel").style.display = "block";
+  renderBooks();
+};
+
+ document.getElementById("authorPortalBtn").onclick = function () {
+
+window.location.href = "author.html";
+
+};   
+
+  document.getElementById("openMarketBtn").onclick = function () {
+
+  document.getElementById("marketPanel").style.display = "block";
+
+renderMarket();
+startMarketRotations();
+
+};
+
+let campaignIndex = 0;
+let imageIndex = 0;
+
+function startBackgroundLoop() {
+
+  const bg = document.getElementById("appBg");
+
+  if (!bg || campaigns.length === 0) return;
+
+  bg.style.transition =
+    "opacity 1.5s ease-in-out";
+
+  bg.style.backgroundSize = "contain"; 
+  bg.style.backgroundPosition = "center";
+
+  bg.style.backgroundImage =
+    `url('${campaigns[0].images[0]}')`;
+
+  setInterval(() => {
+
+    bg.style.opacity = "0";
+
+    setTimeout(() => {
+
+      const currentCampaign =
+        campaigns[campaignIndex];
+
+      imageIndex++;
+
+      // Next campaign after last image
+      if (
+        imageIndex >= currentCampaign.images.length
+      ) {
+
+        imageIndex = 0;
+
+        campaignIndex++;
+
+        if (
+          campaignIndex >= campaigns.length
+        ) {
+          campaignIndex = 0;
+        }
+
+      }
+
+      const nextCampaign =
+        campaigns[campaignIndex];
+
+      bg.style.backgroundImage =
+        `url('${nextCampaign.images[imageIndex]}')`;
+
+      const sponsorLabel =
+document.getElementById("campaignName");
+
+if (sponsorLabel) {
+
+  sponsorLabel.innerHTML =
+    "Featured Sponsor<br>" +
+    nextCampaign.company;
+
 }
 
-function startScrolling(){
-  if(scrollInterval) clearInterval(scrollInterval);
+      bg.style.opacity = "1";
 
-  let top = _outer.clientHeight;
+    }, 1500);
 
-  _inner.style.top = top + "px";
+  }, 5000);
 
-  scrollInterval = setInterval(() => {
-    top -= scrollSpeed;
-
-    if(top + _inner.offsetHeight < 0){
-      top = _outer.clientHeight;
-    }
-
-    _inner.style.top = top + "px";
-  }, 40);
 }
 
-function toggleScroll(){
-  if(scrollInterval){
-    clearInterval(scrollInterval);
-    scrollInterval=null;
-  } else startScrolling();
+    function openGuide() {
+
+  document.getElementById("guideBox").style.display = "block";
+
 }
 
-/* GESTURES */
-let startY=0,endY=0;
+function closeGuide() {
 
-document.addEventListener("touchstart",(e)=>{
-  startY=e.changedTouches[0].screenY;
-});
+  document.getElementById("guideBox").style.display = "none";
 
-document.addEventListener("touchend",(e)=>{
-  endY=e.changedTouches[0].screenY;
-  let dy=endY-startY;
-
-  if(dy<-60){
-    smartToggle.style.opacity="1";
-    smartToggle.style.transform="translateY(0)";
-  }
-
-  if(dy>60){
-  smartPanel.classList.remove("show");
-  smartToggle.classList.remove("active");
-  smartToggle.style.opacity="0";
-  smartToggle.style.transform="translateY(100px)";
-
-  controls.classList.remove("show");
-
-  // SAFE FIX
-  if (typeof keypad !== "undefined" && keypad) {
-    keypad.style.display = "none";
-  }
 }
-});
 
- /* ================= SUPABASE ================= */
+  function closeStore() {
 
-const SUPABASE_URL =
-"https://xbemkmvvbkxknuduthsg.supabase.co";
-
-const SUPABASE_KEY =
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhiZW1rbXZ2Ymt4a251ZHV0aHNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTUyOTgsImV4cCI6MjA5NTA3MTI5OH0.tKtlJ89jdPyeFSAaQs02Vet3SOl2LVatl4psSG9RxPI";
-
-const client =
-supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-
-/* ================= UNLOCK ================= */
-
-document
-.getElementById("unlockBtn")
-.onclick = unlockApp;
-
-async function unlockApp(){
-
-  const key =
-    document.getElementById("licenseKey").value;
-
-  const msg =
-    document.getElementById("licenseMsg");
-
-  msg.innerText = "Checking license...";
-
-  // 1. GET LICENSE FROM SUPABASE
-  let { data, error } = await client
-    .from("licenses")
-    .select("*")
-    .eq("key", key);
-
-  if(error){
-    msg.innerText = "Server Error ❌";
-    return;
-  }
-
-  if(!data || data.length === 0){
-    msg.innerText = "Invalid License ❌";
-    return;
-  }
-
-  const license = data[0];
-
-  // 2. CHECK STATUS
-  if(license.status !== "active"){
-    msg.innerText = "License Blocked ❌";
-    return;
-  }
-
-  // 3. CREATE DEVICE ID (THIS PHONE)
-  let deviceID = localStorage.getItem("deviceID");
-
-  if(!deviceID){
-    deviceID = "DEV-" + Math.random().toString(36).substring(2);
-    localStorage.setItem("deviceID", deviceID);
-  }
-
-  // 4. FIRST TIME SAVE DEVICE TO SUPABASE
-  if(!license.device_id){
-
-    await client
-      .from("licenses")
-      .update({ device_id: deviceID })
-      .eq("id", license.id);
-
-  }
-
-  // 5. BLOCK ANOTHER DEVICE
-  if(license.device_id && license.device_id !== deviceID){
-    msg.innerText = "❌ Used on another device";
-    return;
-  }
-
-  // 6. SUCCESS — UNLOCK APP
-  msg.innerText = "Access Granted ✔";
+  document.getElementById("storePanel").style.display = "none";
 
   document.getElementById("licenseScreen").style.display = "none";
 
+  selectedBookToUnlock = null;
+
+  pendingUnlockBook = null;
+
+  document.getElementById("msg").innerText = "";
+
+  document.getElementById("key").value = "";
+
 }
 
+    function closeMarket() {
+
+  document.getElementById("marketPanel").style.display = "none";
+
+  if (marketInterval) {
+    clearInterval(marketInterval);
+    marketInterval = null;
+  }
+
+}
+
+  function openBook(title) {
+  const book = books.find(b => b.title === title);
+
+  if (book.locked) {
+
+  selectedBookToUnlock = book;
+  pendingUnlockBook = book;
+
+  document.getElementById("storePanel").style.display = "none";
+
+  document.getElementById("book").style.display = "none";
+
+  document.getElementById("licenseScreen").style.display = "block";
+
+  document.getElementById("key").value = "";
+  document.getElementById("msg").innerText = "";
+  document.getElementById("key").focus();
+ 
+  document.getElementById("msg").innerText =
+    "Enter license key for: " + book.title;
+
+  return;
+  } else {
+ document.getElementById("storePanel").style.display = "none";
+document.getElementById("licenseScreen").style.display = "none";
+
+pdfDoc = null;
+pageNum = 1;
+
+const canvas = document.getElementById("pdf-render");
+const ctx = canvas.getContext("2d");
+
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+document.getElementById("book").style.display = "block";
+
+selectedPDF = book.pdf;
+
+unlockBtn.disabled = false;
+unlockBtn.innerText = "Unlock Book";    
+
+renderPDF(); 
+  }
+}
+
+  const marketTitles = [
+  "MARKET STORE",
+  "SOKONI HUB",
+  "AFRICA MARKET",
+  "SMART SHOP",
+  "DIGITAL BAZAAR",
+  "TRADE ZONE"
+];
+
+let marketTitleIndex = 0;
+
+function startMarketTitleLoop() {
+  const title = document.getElementById("marketTitle");
+
+  if (!title) return;
+
+  setInterval(() => {
+
+    // fade out
+    title.style.opacity = "0";
+    title.style.transform = "scale(0.8) rotateX(30deg)";
+
+    setTimeout(() => {
+
+      marketTitleIndex++;
+
+      if (marketTitleIndex >= marketTitles.length) {
+        marketTitleIndex = 0;
+      }
+
+      title.innerText = marketTitles[marketTitleIndex];
+
+      // fade in with 3D pop
+      title.style.opacity = "1";
+      title.style.transform = "scale(1.05) rotateX(0deg)";
+
+    }, 250);
+
+  }, 7000);
+}
+
+startMarketTitleLoop();  
+
+const brandMessages = [
+
+"FEATURED SPONSOR",
+];
+
+    let brandIndex = 0;
+
+  function startBrandLoop() {
+
+  const brandBox =
+    document.getElementById("brandBox");
+
+  if (!brandBox) return;
+
+  setInterval(() => {
+
+    brandIndex++;
+
+    if (brandIndex >= brandMessages.length) {
+      brandIndex = 0;
+    }
+
+  }, 8000);
+
+}  
+
+    startBrandLoop();
+
+    let newWorker = null;
+
+if ("serviceWorker" in navigator) {
+
+navigator.serviceWorker.register("./sw.js");
+
+navigator.serviceWorker.addEventListener("controllerchange", () => {
+
+window.location.reload();
+
+});
+
+navigator.serviceWorker.getRegistration().then((registration) => {
+
+if (!registration) return;
+
+registration.addEventListener("updatefound", () => {
+
+newWorker = registration.installing;
+
+newWorker.addEventListener("statechange", () => {
+
+if (
+
+newWorker.state === "installed" &&
+navigator.serviceWorker.controller
+
+) {
+
+showUpdatePopup();
+
+}
+
+});
+
+});
+
+});
+
+}
+
+    function showUpdatePopup(){
+
+document.getElementById("updatePopup").style.display = "block";
+
+}
+
+document.getElementById("updateNowBtn").onclick = function(){
+
+if(newWorker){
+
+newWorker.postMessage("SKIP_WAITING");
+
+}
+
+};
+    
 </script>
+
+  <div id="updatePopup" style="
+display:none;
+position:fixed;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%);
+width:90%;
+max-width:360px;
+background:#111;
+border:2px solid #00ffff;
+border-radius:18px;
+padding:25px;
+text-align:center;
+z-index:99999999;
+box-shadow:0 0 30px rgba(0,255,255,.35);
+">
+
+<h2 style="
+color:#00ffff;
+margin-bottom:15px;
+">
+Update Available
+</h2>
+
+<p style="
+color:#fff;
+line-height:1.6;
+margin-bottom:25px;
+">
+A new version of Holly Echo is ready.
+
+Press the button below to update your app.
+</p>
+
+<button id="updateNowBtn" style="
+width:100%;
+padding:15px;
+background:#00ffff;
+color:#000;
+font-size:18px;
+font-weight:bold;
+border:none;
+border-radius:12px;
+cursor:pointer;
+">
+UPDATE NOW
+</button>
+
+</div>
+  
 </body>
 </html>
